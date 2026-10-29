@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Search, SlidersHorizontal } from "lucide-react";
 import {
+  apiUnreachable,
   DEPARTMENTS,
   getRequiredCourses,
   listPrograms,
@@ -64,7 +65,7 @@ function SearchPage() {
             }
           })
           .catch(() => {
-            if (live) setError("Can't reach the course API. Is the backend running on port 8000?");
+            if (live) setError(apiUnreachable());
           });
       },
       query.trim() ? 250 : 0,

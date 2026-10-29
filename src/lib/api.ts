@@ -124,6 +124,12 @@ export interface CourseGraph {
   edges: GraphEdge[];
 }
 
+/** Shown when the API can't be reached: names the address this build calls, so a
+ * missing VITE_API_URL (falls back to localhost:8000) or a CORS mismatch is easy to spot. */
+export function apiUnreachable() {
+  return `Can't reach the course API at ${API_URL}. Check that it's running, that VITE_API_URL was set when this site was built, and that the API's CORS_ORIGINS includes this site (${typeof window === "undefined" ? "" : window.location.origin}).`;
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,

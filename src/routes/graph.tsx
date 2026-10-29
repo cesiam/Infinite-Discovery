@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
 import { Loader2, Maximize2, Minimize2, Plus, Search, ShoppingCart, X } from "lucide-react";
 import {
+  apiUnreachable,
   getCommunity,
   getFullGraph,
   getGraphGroup,
@@ -114,7 +115,7 @@ function GraphPage() {
       if (graphs[m]) continue;
       (m === "prereq" ? getFullGraph() : getSimilarityGraph(3))
         .then((g) => setGraphs((all) => ({ ...all, [m]: g })))
-        .catch(() => setError("Can't reach the course API. Is the backend running on port 8000?"));
+        .catch(() => setError(apiUnreachable()));
     }
   }, [mode, sort, graphs]);
   useEffect(() => {
