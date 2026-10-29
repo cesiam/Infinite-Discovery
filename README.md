@@ -16,7 +16,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. Click **Sign in with MIT** to use the development sign-in. MIT login isn't
+Open http://localhost:3000. MIT login isn't
 connected yet. Pick any email and a role (student, professor or admin) to post, vote and edit.
 
 To point the frontend at a different API, copy `.env.example` to `.env.local` and change `VITE_API_URL`.
