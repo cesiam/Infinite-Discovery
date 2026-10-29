@@ -1,0 +1,86 @@
+{
+  "_source": "Drafted by Claude (claude-opus-5-5) from each course's catalog description, following the fingerprint guidelines in app/drafts.py. Shown as AI drafts until a person edits them.",
+  "6.4110": [
+    "How can a POMDP be used to make decisions when the agent cannot observe the full state?",
+    "When would you choose Monte Carlo tree search over solving an MDP exactly, and what do you give up?",
+    "How does constraint propagation shrink a search space before you start backtracking?",
+    "How would you compute the probability of a hidden cause from evidence in a Bayesian network?"
+  ],
+  "6.100A": [
+    "How would you break a messy real-world problem into functions you can write and test one at a time?",
+    "Why does the choice between a list and a dictionary change how fast your program runs?",
+    "How do you find the bug when your program runs but gives the wrong answer?",
+    "When does defining your own class make a program easier to reason about?"
+  ],
+  "6.1200": [
+    "How would you prove that a property holds for every step of a program using an invariant?",
+    "When is strong induction the right tool, and what goes wrong if you use ordinary induction instead?",
+    "How do you count the ways to arrange objects when some of them are identical?",
+    "Why does RSA encryption work, and what would break it?"
+  ],
+  "6.3900": [
+    "Why can a model that fits its training data perfectly do worse on new data, and how do you detect it?",
+    "How does gradient descent find model parameters, and why can it get stuck?",
+    "What can a neural network represent that a linear classifier cannot?",
+    "How would you frame a real-world problem as a reinforcement learning task?"
+  ],
+  "18.06": [
+    "What does it mean geometrically when a system of equations has no solution, and what does least squares give you instead?",
+    "Why do eigenvalues tell you whether a repeated process grows, decays, or settles down?",
+    "How does the singular value decomposition let you compress an image or a dataset?",
+    "What do the four fundamental subspaces of a matrix tell you about the equations it represents?"
+  ],
+  "14.01": [
+    "Why might a price ceiling on rent reduce the number of apartments available?",
+    "How does a firm decide how much to produce when it can't set the market price?",
+    "Why does a monopoly produce less than a competitive market, and who loses?",
+    "When do markets fail to reach an efficient outcome, and what can policy do about it?"
+  ],
+  "6.1010": [
+    "How do you design a recursive solution, and how do you know it will terminate?",
+    "How would you structure a larger program so that each part can be tested on its own?",
+    "When is it worth replacing a slow, simple solution with a cleverer algorithm?"
+  ],
+  "6.1210": [
+    "How would you prove an algorithm is correct, not just that it works on your test cases?",
+    "When does a hash table beat a balanced search tree, and when does it lose?",
+    "How can you recognize a problem as a shortest-path or graph-search problem in disguise?",
+    "Why does dynamic programming turn some exponential-time problems into polynomial-time ones?"
+  ],
+  "18.03": [
+    "How do you model a physical system with a differential equation and predict its long-term behavior?",
+    "Why does a system resonate when it is driven at its natural frequency?",
+    "How do eigenvalues of a linear system tell you whether its solutions oscillate, grow, or decay?",
+    "How can you sketch the behavior of a nonlinear system without solving it exactly?"
+  ],
+  "8.01": [
+    "How do you decide which forces act on an object and predict its motion from them?",
+    "When is conservation of energy or momentum a faster route to an answer than Newton's laws?",
+    "Why does a spinning object resist changes to its axis of rotation?"
+  ],
+  "18.01": [
+    "What does a derivative tell you about how a quantity changes, and how do you use it to find an optimum?",
+    "Why does the fundamental theorem of calculus connect areas to rates of change?",
+    "How do you decide whether an infinite series adds up to a finite number?"
+  ],
+  "18.02": [
+    "How does the gradient tell you which direction a function increases fastest?",
+    "How do you set up and evaluate an integral over a region in two or three dimensions?",
+    "What do Green's, Stokes', and the divergence theorems say about flow through a boundary?"
+  ],
+  "6.1910": [
+    "How does a collection of logic gates become a processor that executes instructions?",
+    "Why does pipelining speed up a processor, and what hazards does it introduce?",
+    "Why does a memory hierarchy make most memory accesses fast even though main memory is slow?"
+  ],
+  "24.900": [
+    "How do linguists figure out the hidden rules that let speakers produce sentences they've never heard?",
+    "Why can no language or dialect be called simpler or better than another?",
+    "How do children acquire a language without being taught its grammar?"
+  ],
+  "14.02": [
+    "How do interest rate decisions by a central bank affect unemployment and inflation?",
+    "What determines a country's long-run economic growth?",
+    "What can fiscal policy do in a recession, and what are its costs?"
+  ]
+}
