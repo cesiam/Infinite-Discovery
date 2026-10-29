@@ -7,8 +7,20 @@ from pathlib import Path
 from app.rag import DATABASE_PATH
 
 
-def _list(name, default):
-    return [item.strip() for item in os.getenv(name, default).split(",") if item.strip()]
+def cors_origins(raw: str) -> list:
+    """Browsers send an origin as exactly "https://host" (no path, no trailing slash), and
+    CORS only matches it exactly. Forgive the usual slips when pasting the setting:
+    quotes, spaces, a trailing slash, a missing https://."""
+    origins = []
+    for item in raw.split(","):
+        origin = item.strip().strip("'\"").strip().rstrip("/")
+        if not origin:
+            continue
+        if "://" not in origin:
+            origin = ("http://" if origin.startswith(("localhost", "127.0.0.1")) else "https://") + origin
+        origins.append(origin)
+    return origins
+
 
 
 @dataclass
@@ -18,7 +30,7 @@ class Settings:
     # else turns it off; see app/auth.py for where MIT login plugs in.
     auth_mode: str = field(default_factory=lambda: os.getenv("AUTH_MODE", "dev"))
     session_ttl_hours: int = field(default_factory=lambda: int(os.getenv("SESSION_TTL_HOURS", str(24 * 14))))
-    cors_origins: list = field(default_factory=lambda: _list("CORS_ORIGINS", "http://localhost:3000"))
+    cors_origins: list = field(default_factory=lambda: cors_origins(os.getenv("CORS_ORIGINS", "http://localhost:3000")))
     # "auto" asks Claude for fingerprint drafts and falls back to templates if
     # no credentials are configured or the call fails; "template" never calls out.
     fingerprint_drafter: str = field(default_factory=lambda: os.getenv("FINGERPRINT_DRAFTER", "auto"))

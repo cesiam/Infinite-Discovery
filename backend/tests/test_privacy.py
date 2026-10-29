@@ -102,3 +102,31 @@ def test_community_lists_questions_and_courses_without_authors(client, login):
     assert body["questions"][0]["replies_count"] == 1
     assert body["questions"][0]["course_title"] == "Introduction to Machine Learning"
     assert {c["id"]: c["post_counts"] for c in body["courses"]} == {"6.3900": {"Question": 1}, "14.01": {"Taught me": 1}}
+
+
+def test_cors_origins_forgive_pasting_slips():
+    from app.settings import cors_origins
+    assert cors_origins('"https://infinite-discovery.up.railway.app/" , localhost:3000') == [
+        "https://infinite-discovery.up.railway.app",
+        "http://localhost:3000",
+    ]
+    assert cors_origins("infinite-discovery.up.railway.app") == ["https://infinite-discovery.up.railway.app"]
+    assert cors_origins("") == []
+
+
+def test_cors_allows_the_configured_site(db_path):
+    from fastapi.testclient import TestClient
+    from app.main import create_app
+    from app.settings import Settings
+    from tests.conftest import bow_embeddings
+    from app.drafts import TemplateDrafter
+
+    settings = Settings(db_path=db_path, cors_origins=["https://infinite-discovery.up.railway.app"])
+    client = TestClient(create_app(settings, embed_fn=bow_embeddings, drafter=TemplateDrafter()))
+    ok = client.options("/requirements/progress", headers={
+        "Origin": "https://infinite-discovery.up.railway.app", "Access-Control-Request-Method": "POST",
+        "Access-Control-Request-Headers": "content-type"})
+    assert ok.status_code == 200 and ok.headers["access-control-allow-origin"] == "https://infinite-discovery.up.railway.app"
+    blocked = client.options("/requirements/progress", headers={
+        "Origin": "https://evil.example", "Access-Control-Request-Method": "POST"})
+    assert "access-control-allow-origin" not in blocked.headers
