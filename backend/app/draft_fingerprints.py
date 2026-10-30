@@ -12,6 +12,7 @@ new text is appended as a revision, so the history keeps the old draft.
 """
 import argparse
 import json
+import os
 import sys
 import time
 
@@ -126,7 +127,7 @@ def main():
     parser.add_argument("--from-file")
     parser.add_argument("--batch", action="store_true")
     parser.add_argument("--courses", nargs="*")
-    parser.add_argument("--db", default=str(DATABASE_PATH))
+    parser.add_argument("--db", default=os.getenv("APP_DB_PATH", str(DATABASE_PATH)))  # same file as the API
     args = parser.parse_args()
     conn = migrate(connect(args.db))
     if args.from_file:

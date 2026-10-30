@@ -23,6 +23,7 @@ import argparse
 import hashlib
 import html
 import json
+import os
 import re
 import sys
 import time
@@ -331,7 +332,7 @@ def store(conn, programs):
 def main():
     parser = argparse.ArgumentParser(description="Import MIT degree requirements from the official catalog.")
     parser.add_argument("--refresh", action="store_true", help="re-download pages instead of using the cache")
-    parser.add_argument("--db", default=str(DATABASE_PATH))
+    parser.add_argument("--db", default=os.getenv("APP_DB_PATH", str(DATABASE_PATH)))  # same file as the API
     args = parser.parse_args()
 
     conn = migrate(connect(args.db))

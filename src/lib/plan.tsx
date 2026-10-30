@@ -118,12 +118,15 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     () => [...new Set([...Object.values(plan.slots).flat(), ...plan.cart])].sort(),
     [plan],
   );
+  // Ask for each course once: ids the API doesn't know would otherwise be re-requested forever.
+  const requested = useRef(new Set<string>());
   useEffect(() => {
-    const missing = ids.filter((id) => !courses[id]);
-    if (missing.length)
-      getCourseSummaries(missing)
-        .then((found) => setCourses((c) => ({ ...c, ...found })))
-        .catch(() => undefined);
+    const missing = ids.filter((id) => !courses[id] && !requested.current.has(id));
+    if (!missing.length) return;
+    missing.forEach((id) => requested.current.add(id));
+    getCourseSummaries(missing)
+      .then((found) => setCourses((c) => ({ ...c, ...found })))
+      .catch(() => missing.forEach((id) => requested.current.delete(id)));
   }, [ids, courses]);
 
   /** Save after a change: debounced to the account, or straight to this browser. */
