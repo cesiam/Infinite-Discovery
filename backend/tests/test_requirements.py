@@ -100,8 +100,14 @@ def test_progress_units_rules(client, db_path):
     assert full["programs"][0]["percent"] == 100
 
 
-def test_unknown_program_is_404(client):
+def test_unknown_program_is_404(client, db_path):
+    _add_program(db_path, "gir", "gir", [("x", {"type": "manual", "text": "x"})])
     assert client.post("/requirements/progress", json={"programs": ["major:nope"], "courses": []}).status_code == 404
+
+
+def test_progress_without_imported_programs_says_so(client):
+    response = client.post("/requirements/progress", json={"programs": ["gir"], "courses": []})
+    assert response.status_code == 503 and "requirements_import" in response.json()["detail"]
 
 
 def test_program_listing(client, db_path):

@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Check, CircleDashed, CircleHelp, ExternalLink, Plus, X } from "lucide-react";
 import {
+  ApiError,
+  apiUnreachable,
   getProgress,
   listPrograms,
   type ProgramKind,
@@ -57,7 +59,7 @@ export function RequirementsPanel() {
             setError("");
           }
         })
-        .catch(() => live && setError("Can't load requirements from the API."));
+        .catch((e) => live && setError(e instanceof ApiError ? e.message : apiUnreachable()));
     }, 200);
     return () => {
       live = false;

@@ -48,6 +48,9 @@ class ProgressRequest(BaseModel):
 @router.post("/requirements/progress")
 def progress(body: ProgressRequest, conn=Depends(get_conn)):
     """Progress for each program. Stateless: the plan lives in the browser and is sent here."""
+    if conn.execute("SELECT 1 FROM programs LIMIT 1").fetchone() is None:
+        raise HTTPException(503, "This API's database has no degree programs. "
+                                 "Run `python -m app.requirements_import` in backend/ on the server.")
     planned = list(dict.fromkeys(c.strip() for c in body.courses if c.strip()))
     results = []
     for program_id in dict.fromkeys(body.programs):
