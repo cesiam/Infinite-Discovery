@@ -1085,7 +1085,7 @@ function GraphPage() {
             </Button>
           </div>
           {full && (
-            <div className="absolute bottom-3 left-3 w-72 rounded-lg border border-border bg-card/95 p-3 shadow-md">
+            <div className="absolute bottom-3 left-3 w-72 rounded-lg border border-border bg-popover/95 p-3 shadow-md">
               <p className="label-mono mb-2 flex items-center gap-1.5">
                 <ShoppingCart className="h-3 w-3" /> Class cart · {plan.cart.length}
               </p>
@@ -1096,7 +1096,7 @@ function GraphPage() {
           )}
           {hover && !card && (
             <div
-              className="pointer-events-none absolute z-10 max-w-60 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs shadow-md"
+              className="pointer-events-none absolute z-10 max-w-60 rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs shadow-md"
               style={{ left: hover.x + 12, top: hover.y + 12 }}
               role="tooltip"
             >
@@ -1106,7 +1106,7 @@ function GraphPage() {
           )}
           {card && (
             <div
-              className="absolute z-20 w-64 rounded-lg border border-border bg-card p-3 shadow-lg"
+              className="absolute z-20 w-64 rounded-lg border border-border bg-popover p-3 shadow-lg"
               style={{
                 left: Math.min(card.x + 12, (boxRef.current?.clientWidth ?? 600) - 272),
                 top: Math.min(card.y + 12, (boxRef.current?.clientHeight ?? HEIGHT) - 140),
