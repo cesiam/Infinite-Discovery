@@ -23,8 +23,11 @@ import { usePlan } from "@/lib/plan";
 
 export const Route = createFileRoute("/")({
   // plan=1 opens the planner beside search; without it, "/" is the opening screen.
-  validateSearch: (search: Record<string, unknown>): { plan?: 1 } =>
-    search["plan"] ? { plan: 1 } : {},
+  // q starts the search with that text (from the opening screen's search box).
+  validateSearch: (search: Record<string, unknown>): { plan?: 1; q?: string } => ({
+    ...(search["plan"] ? { plan: 1 as const } : {}),
+    ...(typeof search["q"] === "string" ? { q: search["q"] } : {}),
+  }),
   head: () => ({
     meta: [
       { title: "Infinite Discovery — Search MIT courses by what they teach" },
@@ -47,7 +50,9 @@ export const Route = createFileRoute("/")({
 
 function SearchPage() {
   const placeholder = useTypingPlaceholder();
-  const [query, setQuery] = useState("");
+  const { q } = Route.useSearch();
+  const [query, setQuery] = useState(q ?? "");
+  useEffect(() => setQuery(q ?? ""), [q]);
   const [filters, setFilters] = useState<SearchFilters>({});
   const [results, setResults] = useState<SearchResult[] | null>(null);
   const [error, setError] = useState("");
