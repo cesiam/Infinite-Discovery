@@ -1447,3 +1447,163 @@ input.plan-tab {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ---- Requirement cards ---- */
+.req-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.req-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--popover);
+  border: 1px solid var(--border);
+}
+.req-gir {
+  background: linear-gradient(170deg, #d9c6f0, #c8b0e8 55%, #f2c4cf);
+  color: #22181c;
+  border-color: transparent;
+}
+.req-open {
+  box-shadow: 0 0 0 2px var(--primary);
+}
+.req-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.req-ring {
+  flex: none;
+}
+.req-kind {
+  display: block;
+  font: 500 10.5px/1.3 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.req-name {
+  display: block;
+  font: 800 21px/1.1 var(--font-display);
+  letter-spacing: -0.02em;
+}
+.req-meta {
+  display: block;
+  font-size: 13px;
+  opacity: 0.75;
+}
+.req-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.req-row {
+  display: block;
+  width: 100%;
+  padding: 7px 8px;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+.req-row:hover,
+.req-row-on {
+  background: rgba(255, 255, 255, 0.45);
+}
+.req-row-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+}
+.req-row-label span {
+  font: 500 12px var(--font-mono);
+}
+.segs {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+.seg {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(34, 24, 28, 0.16);
+  overflow: hidden;
+}
+.seg span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #22181c;
+}
+.req-spot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 8px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.req-spot:hover,
+.req-card .req-row-on {
+  background: color-mix(in oklab, var(--foreground) 6%, transparent);
+}
+.req-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.req-chip {
+  padding: 5px 9px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font: 700 12px var(--font-mono);
+  cursor: pointer;
+}
+.req-chip.cblock {
+  border-color: transparent;
+  cursor: grab;
+}
+.req-chip-cart {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.req-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 150px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1.5px dashed color-mix(in oklab, var(--foreground) 22%, transparent);
+  font-weight: 600;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+.req-add svg {
+  width: 18px;
+  height: 18px;
+}
+.req-add:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.req-detail {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--popover);
+}
