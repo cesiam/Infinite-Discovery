@@ -39,8 +39,8 @@ const creditedCourses = (p: ProgramProgress) => p.requirements.flatMap((r) => r.
 export function RequirementsPanel() {
   const { plan, addProgram, removeProgram, setHighlight } = usePlan();
   const courses = useMemo(
-    () => [...new Set(Object.values(plan.slots).flat())].sort(),
-    [plan.slots],
+    () => [...new Set([...Object.values(plan.slots).flat(), ...plan.credit])].sort(),
+    [plan.slots, plan.credit],
   );
   const [progress, setProgress] = useState<ProgramProgress[] | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);

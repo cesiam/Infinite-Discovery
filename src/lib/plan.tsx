@@ -45,6 +45,9 @@ interface PlanCtx {
   removeProgram: (id: string) => void;
   addToCart: (ids: string[]) => void;
   removeFromCart: (id: string) => void;
+  /** Prior credit (AP, ASE, transfer): taken out of any term and the cart. */
+  addCredit: (id: string) => void;
+  removeCredit: (id: string) => void;
   switchPlan: (id: string) => void;
   newPlan: (name: string, copyCurrent: boolean) => Promise<void>;
   renamePlan: (name: string) => void;
@@ -115,7 +118,7 @@ export function PlanProvider({ children }: { children: ReactNode }) {
   const plan = active?.data ?? EMPTY_PLAN;
 
   const ids = useMemo(
-    () => [...new Set([...Object.values(plan.slots).flat(), ...plan.cart])].sort(),
+    () => [...new Set([...Object.values(plan.slots).flat(), ...plan.cart, ...plan.credit])].sort(),
     [plan],
   );
   // Ask for each course once: ids the API doesn't know would otherwise be re-requested forever.
@@ -155,10 +158,12 @@ export function PlanProvider({ children }: { children: ReactNode }) {
         ...p,
         slots: { ...slots, [key]: [...(slots[key] ?? []), id] },
         cart: p.cart.filter((x) => x !== id),
+        credit: p.credit.filter((x) => x !== id),
       };
     });
   const remove = (id: string) => update((p) => ({ ...p, slots: strip(p.slots, id) }));
-  const has = (id: string) => Object.values(plan.slots).some((v) => v.includes(id));
+  const has = (id: string) =>
+    plan.credit.includes(id) || Object.values(plan.slots).some((v) => v.includes(id));
   const addNext = (id: string) => {
     for (let y = 1; y <= plan.years; y++)
       for (const t of ["Fall", "Spring"] as Season[]) {
@@ -189,11 +194,20 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     update((p) => ({ ...p, programs: p.programs.filter((x) => x !== id) }));
   const addToCart = (more: string[]) =>
     update((p) => {
-      const planned = new Set(Object.values(p.slots).flat());
+      const planned = new Set([...Object.values(p.slots).flat(), ...p.credit]);
       return { ...p, cart: [...new Set([...p.cart, ...more.filter((id) => !planned.has(id))])] };
     });
   const removeFromCart = (id: string) =>
     update((p) => ({ ...p, cart: p.cart.filter((x) => x !== id) }));
+  const addCredit = (id: string) =>
+    update((p) => ({
+      ...p,
+      slots: strip(p.slots, id),
+      cart: p.cart.filter((x) => x !== id),
+      credit: p.credit.includes(id) ? p.credit : [...p.credit, id],
+    }));
+  const removeCredit = (id: string) =>
+    update((p) => ({ ...p, credit: p.credit.filter((x) => x !== id) }));
 
   const switchPlan = (id: string) => {
     setActiveId(id);
@@ -247,6 +261,8 @@ export function PlanProvider({ children }: { children: ReactNode }) {
         removeProgram,
         addToCart,
         removeFromCart,
+        addCredit,
+        removeCredit,
         switchPlan,
         newPlan,
         renamePlan,

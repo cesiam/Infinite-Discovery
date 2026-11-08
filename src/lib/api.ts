@@ -624,11 +624,13 @@ export async function exploreCourses(): Promise<SearchResult[]> {
 // ---- Plans (several per student, like CourseRoad) ----
 // slot key: `${year}-${season}`. programs: ids from /programs ("gir", "major:...", ...).
 // cart: courses picked up while exploring, waiting to be dragged into a term.
+// credit: prior credit (AP, ASE, transfer); counts toward requirements without a term.
 export type Plan = {
   years: number;
   slots: Record<string, string[]>;
   programs: string[];
   cart: string[];
+  credit: string[];
 };
 export interface SavedPlan {
   id: string;
@@ -648,8 +650,9 @@ export const DEFAULT_PLAN: Plan = {
   },
   programs: ["gir"],
   cart: [],
+  credit: [],
 };
-export const EMPTY_PLAN: Plan = { years: 4, slots: {}, programs: ["gir"], cart: [] };
+export const EMPTY_PLAN: Plan = { years: 4, slots: {}, programs: ["gir"], cart: [], credit: [] };
 
 function normalizePlan(raw: Partial<Plan> | null | undefined): Plan {
   return {
@@ -657,6 +660,7 @@ function normalizePlan(raw: Partial<Plan> | null | undefined): Plan {
     slots: raw?.slots ?? {},
     programs: raw?.programs ?? ["gir"],
     cart: raw?.cart ?? [],
+    credit: raw?.credit ?? [],
   };
 }
 
