@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
 import { Check, GripVertical, ShoppingCart, X } from "lucide-react";
 import { usePlan } from "@/lib/plan";
 import { Button } from "@/components/ui/button";
@@ -94,39 +93,5 @@ export function CartList({ compact = false }: { compact?: boolean }) {
         </li>
       ))}
     </ul>
-  );
-}
-
-/** Header button with the cart's count; opens the list. */
-export function CartButton() {
-  const { plan } = usePlan();
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="relative">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        aria-label={`Cart, ${plan.cart.length} classes`}
-      >
-        <ShoppingCart className="h-4 w-4" />
-        <span>{plan.cart.length}</span>
-      </Button>
-      {open && (
-        <div className="glass-strong absolute right-0 top-11 z-50 w-80 rounded-lg p-3">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="label-mono">Class cart</p>
-            <button type="button" onClick={() => setOpen(false)} aria-label="Close cart">
-              <X className="h-4 w-4 text-muted-foreground" />
-            </button>
-          </div>
-          <CartList compact />
-          <p className="mt-2 text-[11px] font-semibold text-muted-foreground">
-            Drag a class onto a term in your plan, or press Place.
-          </p>
-        </div>
-      )}
-    </div>
   );
 }

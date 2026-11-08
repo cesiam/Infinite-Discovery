@@ -12,7 +12,6 @@ import { type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { AppShell } from "../components/AppShell";
-import { AppearanceProvider } from "../lib/appearance";
 import { PlanProvider } from "../lib/plan";
 
 function NotFoundComponent() {
@@ -123,13 +122,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <AppearanceProvider>
-        <PlanProvider>
-          <AppShell>
-            <Outlet />
-          </AppShell>
-        </PlanProvider>
-      </AppearanceProvider>
+      <PlanProvider>
+        <AppShell>
+          <Outlet />
+        </AppShell>
+      </PlanProvider>
     </QueryClientProvider>
   );
 }
