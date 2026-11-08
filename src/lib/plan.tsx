@@ -26,6 +26,7 @@ import {
   type Season,
 } from "./api";
 import { useUser } from "./auth";
+import { seasonOf } from "./blocks";
 
 interface PlanCtx {
   /** The plan being edited. */
@@ -287,3 +288,9 @@ export function usePlan() {
 export const PLAN_START_YEAR = 2026;
 export const seasonYear = (year: number, season: Season) =>
   PLAN_START_YEAR + year - (season === "Fall" ? 1 : 0);
+
+/** Which plan year and season a date falls in (Fall 2026 is year 1). */
+export function planTermOf(date: Date): { year: number; season: Season } {
+  const { season, calendarYear } = seasonOf(date);
+  return { year: calendarYear - PLAN_START_YEAR + (season === "Fall" ? 1 : 0), season };
+}
