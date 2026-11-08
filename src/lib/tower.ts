@@ -7,13 +7,14 @@ const ROWS = 16;
 type Piece = "I" | "O" | "T" | "S" | "Z" | "J" | "L";
 type Cell = [number, number];
 
+// Lit windows in the app's colors: reds and blues, plus white.
 const COLORS: Record<Piece, string> = {
-  I: "#3DFAFF",
-  O: "#F3DFA2",
-  T: "#B497D6",
-  S: "#43C59E",
-  Z: "#F13030",
-  J: "#48BEFF",
+  I: "#8FDCFF",
+  O: "#FFFFFF",
+  T: "#2B8FD6",
+  S: "#48BEFF",
+  Z: "#E0262B",
+  J: "#7FCBF5",
   L: "#F45B69",
 };
 const BASE: Record<Piece, Cell[]> = {
@@ -341,8 +342,8 @@ export function startTower(
     const { fx, fy, fw, fh, side } = G;
     // ground glow
     const gg = g.createRadialGradient(fx + fw / 2, H, 0, fx + fw / 2, H, fw * 1.1);
-    gg.addColorStop(0, "rgba(240,100,73,.28)");
-    gg.addColorStop(1, "rgba(240,100,73,0)");
+    gg.addColorStop(0, "rgba(224,38,43,.26)");
+    gg.addColorStop(1, "rgba(224,38,43,0)");
     g.fillStyle = gg;
     g.fillRect(0, 0, W, H);
     // radome + mast
@@ -428,7 +429,7 @@ export function startTower(
         rr(x, y, w, h, 2);
         g.fill();
         if (warm[r]![c] && !board[r]![c]) {
-          g.fillStyle = "rgba(243,223,162,.32)";
+          g.fillStyle = "rgba(255,255,255,.16)";
           rr(x, y, w, h, 2);
           g.fill();
         }
@@ -459,10 +460,10 @@ export function startTower(
       const w = fw * (b - a);
       const y = by + G.base * 0.32;
       const lg = g.createLinearGradient(0, y, 0, H);
-      lg.addColorStop(0, "#F3DFA2");
-      lg.addColorStop(1, "#F06449");
+      lg.addColorStop(0, "#FFFFFF");
+      lg.addColorStop(1, "#F45B69");
       g.save();
-      g.shadowColor = "#F3DFA2";
+      g.shadowColor = "#FFFFFF";
       g.shadowBlur = 24;
       g.fillStyle = lg;
       g.fillRect(x, y, w, H - y);

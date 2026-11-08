@@ -58,7 +58,8 @@ interface Tag {
 const HEIGHT = 640;
 const R = 3.2; // node radius in layout units
 const LABEL_ZOOM = 2.2; // course numbers appear past this zoom
-const TAG_COLORS = ["#90291e", "#1f6f8b", "#6a4c93", "#2a9d8f", "#d1495b", "#3d5a80", "#8a6d1f"];
+// Tag colors are shades of the app's three: red, blue and ink.
+const TAG_COLORS = ["#E0262B", "#2B8FD6", "#22181C", "#F45B69", "#48BEFF", "#6B5F64", "#A31A1E"];
 // topological layout: one block of columns per prerequisite level
 const CELL = 8;
 const MAX_ROWS = 90;
@@ -179,8 +180,13 @@ function GraphPage() {
   }, [base]);
   const color = useMemo(() => {
     const order = [...departments].sort();
-    return (d: string) =>
-      d3.interpolateSinebow((order.indexOf(d) / Math.max(1, order.length)) * 0.92);
+    // the app's three colors, each in lighter steps, so every department still differs
+    const hues = ["#E0262B", "#2B8FD6", "#22181C"];
+    return (d: string) => {
+      const i = Math.max(0, order.indexOf(d));
+      const step = Math.floor(i / hues.length) / Math.ceil(order.length / hues.length);
+      return d3.interpolateRgb(hues[i % hues.length]!, "#ffffff")(step * 0.75);
+    };
   }, [departments]);
 
   useEffect(() => {
@@ -415,7 +421,7 @@ function GraphPage() {
           ctx.fill();
           if (planIds.has(n.id) || n.id === selectedId) {
             ctx.lineWidth = n.id === selectedId ? 2 : 1.4;
-            ctx.strokeStyle = n.id === selectedId ? "#90291e" : "#1f1a17";
+            ctx.strokeStyle = n.id === selectedId ? "#E0262B" : "#1f1a17";
             ctx.stroke();
           }
         }
@@ -533,7 +539,7 @@ function GraphPage() {
         ctx.beginPath();
         ctx.arc(pinned.x ?? 0, pinned.y ?? 0, R + 3, 0, Math.PI * 2);
         ctx.lineWidth = 2 / k;
-        ctx.strokeStyle = "#90291e";
+        ctx.strokeStyle = "#E0262B";
         ctx.stroke();
       }
     };

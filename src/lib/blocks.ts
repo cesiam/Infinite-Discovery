@@ -2,37 +2,16 @@
 // codes for terms (F26, IAP27, S27, U27).
 import type { Season } from "./api";
 
-export type Tone = "red" | "mint" | "sky" | "wisteria" | "vanilla";
+export type Tone = "red" | "sky" | "ink";
 
 const SCIENCE = new Set(["3", "5", "7", "8", "9", "10", "12", "20", "22"]);
-const HASS = new Set([
-  "4",
-  "11",
-  "14",
-  "15",
-  "17",
-  "21",
-  "21A",
-  "21G",
-  "21H",
-  "21L",
-  "21M",
-  "21T",
-  "21W",
-  "24",
-  "CMS",
-  "STS",
-  "WGS",
-]);
 
-/** EECS red, math mint, science sky, humanities wisteria, everything else vanilla. */
+/** The app's three colors: EECS red, math and science blue, everything else ink. */
 export function tone(courseId: string): Tone {
   const dept = courseId.split(".")[0] ?? "";
   if (dept === "6") return "red";
-  if (dept === "18") return "mint";
-  if (SCIENCE.has(dept)) return "sky";
-  if (HASS.has(dept) || dept.startsWith("21")) return "wisteria";
-  return "vanilla";
+  if (dept === "18" || SCIENCE.has(dept)) return "sky";
+  return "ink";
 }
 
 const TAGS: [RegExp, string][] = [

@@ -20,8 +20,8 @@ const FEED = [
 const STARTERS = [
   { label: "Machine learning", color: "var(--primary)" },
   { label: "Climate & energy", color: "var(--sky)" },
-  { label: "Music & theater", color: "var(--wisteria)" },
-  { label: "Biology", color: "var(--mint)" },
+  { label: "Music & theater", color: "var(--ink)" },
+  { label: "Biology", color: "var(--sky)" },
 ];
 
 function Headline() {
@@ -130,8 +130,8 @@ export function Hero() {
             <stop offset="1" stopColor="#0B1838" />
           </linearGradient>
           <radialGradient id="hero-glow" cx=".72" cy="1" r=".55">
-            <stop offset="0" stopColor="#F06449" stopOpacity=".35" />
-            <stop offset="1" stopColor="#F06449" stopOpacity="0" />
+            <stop offset="0" stopColor="#E0262B" stopOpacity=".3" />
+            <stop offset="1" stopColor="#E0262B" stopOpacity="0" />
           </radialGradient>
         </defs>
         <path d="M14 0H21V1H23V0H24V14H11V12H10V5H12V3H14Z" fill="url(#hero-night)" />

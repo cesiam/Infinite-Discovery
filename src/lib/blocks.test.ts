@@ -5,10 +5,10 @@ import { planTermOf } from "./plan";
 describe("course blocks", () => {
   it("colors classes by area", () => {
     expect(tone("6.1210")).toBe("red");
-    expect(tone("18.06")).toBe("mint");
+    expect(tone("18.06")).toBe("sky");
     expect(tone("8.02")).toBe("sky");
-    expect(tone("21M.030")).toBe("wisteria");
-    expect(tone("2.001")).toBe("vanilla");
+    expect(tone("21M.030")).toBe("ink");
+    expect(tone("2.001")).toBe("ink");
   });
   it("reads GIR tags from the units line", () => {
     expect(girTags("5-0-7 CALC I")).toEqual(["Calc I"]);

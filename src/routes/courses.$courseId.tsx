@@ -76,7 +76,7 @@ function CoursePage() {
         <div className="min-w-0 space-y-6">
           <section className="glass space-y-4 rounded-3xl p-6 sm:p-8">
             <Heading n="01 · Official, read-only" title="Catalog Description" />
-            <p className="border-l-4 border-khaki pl-4 text-[15px] leading-relaxed text-foreground">
+            <p className="border-l-4 border-ink/30 pl-4 text-[15px] leading-relaxed text-foreground">
               {course.description}
             </p>
             {Object.keys(course.instructors).length > 0 && (
