@@ -180,7 +180,7 @@ function Ring({ percent, label }: { percent: number; label: string }) {
       aria-valuemin={0}
       aria-valuemax={100}
     >
-      <circle cx="25" cy="25" r={r} fill="var(--popover)" stroke="var(--border)" strokeWidth="5" />
+      <circle className="req-ring-bg" cx="25" cy="25" r={r} strokeWidth="5" />
       <circle
         cx="25"
         cy="25"

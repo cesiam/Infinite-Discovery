@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Search, SlidersHorizontal } from "lucide-react";
+import { Check, Search, ShoppingCart } from "lucide-react";
 import {
   apiUnreachable,
   DEPARTMENTS,
@@ -10,16 +10,17 @@ import {
   exploreCourses,
   searchCourses,
   SEASONS,
+  type Season,
   type SearchFilters,
   type SearchResult,
 } from "@/lib/api";
 import { useTypingPlaceholder } from "@/components/TypingSearch";
 import { SourceBadge } from "@/components/SourceBadge";
 import { DRAG_TYPE } from "@/lib/dnd";
-import { AddToCartButton } from "@/components/Cart";
 import { AddToPlanButton } from "@/components/AddToPlanButton";
 import { Button } from "@/components/ui/button";
-import { usePlan } from "@/lib/plan";
+import { seasonYear, usePlan } from "@/lib/plan";
+import { girTags } from "@/lib/blocks";
 
 export const Route = createFileRoute("/")({
   // plan=1 opens the planner beside search; without it, "/" is the opening screen.
@@ -54,6 +55,7 @@ function SearchPage() {
   const [query, setQuery] = useState(q ?? "");
   useEffect(() => setQuery(q ?? ""), [q]);
   const [filters, setFilters] = useState<SearchFilters>({});
+  const [countsFor, setCountsFor] = useState("");
   const [results, setResults] = useState<SearchResult[] | null>(null);
   const [error, setError] = useState("");
 
@@ -82,30 +84,30 @@ function SearchPage() {
   }, [query, filters]);
 
   const set = (k: keyof SearchFilters, v: string) =>
-    setFilters((f) => ({ ...f, [k]: v ? (k === "units" ? Number(v) : v) : undefined }));
+    setFilters((f) => ({ ...f, [k]: v || undefined }));
+  // "Counts for" is checked here, against the GIR tags on each result's units line
+  const shown = results?.filter((r) => !countsFor || girTags(r.course.units).includes(countsFor));
 
-  const searchPanel = (
-    <section className="search-section">
+  return (
+    <main className="find">
       <p className="label-mono">A little curiosity goes a long way</p>
-      <h1 className="mt-3 font-display font-black text-foreground">
-        What do you want to <span className="text-primary">learn?</span>
+      <h1 className="find-title">
+        What do you
+        <br />
+        want to <span>learn?</span>
       </h1>
-      <div className="relative mt-7">
-        <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
+      <div className="find-search">
+        <Search aria-hidden />
         <input
+          id="course-search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
-          className="field !rounded-lg !py-4 !pl-12 !text-sm"
           aria-label="What do you want to learn?"
         />
       </div>
-      <p className="mt-6 flex items-center gap-2 text-xs font-bold text-muted-foreground">
-        <SlidersHorizontal className="h-3.5 w-3.5" />
-        Refine your search
-      </p>
-      <div className="mt-3 grid grid-cols-2 gap-3 @xl:grid-cols-3">
-        <label className="space-y-1.5">
+      <div className="find-filters">
+        <label>
           <span className="label-mono">Department</span>
           <select className="field" onChange={(e) => set("department", e.target.value)}>
             <option value="">All</option>
@@ -116,18 +118,20 @@ function SearchPage() {
             ))}
           </select>
         </label>
-        <label className="space-y-1.5">
-          <span className="label-mono">Units</span>
-          <select className="field" onChange={(e) => set("units", e.target.value)}>
-            <option value="">Any</option>
-            {[3, 6, 9, 12, 15].map((u) => (
-              <option key={u} value={u}>
-                {u}
-              </option>
+        <label>
+          <span className="label-mono">Counts for</span>
+          <select
+            className="field"
+            value={countsFor}
+            onChange={(e) => setCountsFor(e.target.value)}
+          >
+            <option value="">Anything</option>
+            {GIR_TAGS.map((t) => (
+              <option key={t}>{t}</option>
             ))}
           </select>
         </label>
-        <label className="space-y-1.5">
+        <label>
           <span className="label-mono">Term</span>
           <select className="field" onChange={(e) => set("term", e.target.value)}>
             <option value="">Any</option>
@@ -137,78 +141,113 @@ function SearchPage() {
           </select>
         </label>
       </div>
-    </section>
-  );
 
-  const resultsList = (
-    <section className="mt-7 border-t border-border pt-5">
       <Bundles query={query} />
-      <div className="mb-4 flex items-baseline justify-between">
-        <h2 className="text-base font-extrabold text-foreground">
-          {query.trim() ? "Search results" : "Explore courses students are discussing"}
-        </h2>
-        {results && (
-          <p className="text-sm font-bold text-muted-foreground">
-            {results.length} course{results.length === 1 ? "" : "s"}
-          </p>
-        )}
-      </div>
-      <div className="divide-y divide-border rounded-lg border border-border bg-card/60">
-        {error && <p className="p-10 text-center font-bold text-destructive">{error}</p>}
-        {!error && results?.length === 0 && (
-          <p className="p-10 text-center font-bold text-muted-foreground">
-            No courses match. Try other words or fewer filters.
-          </p>
-        )}
+      <p className="find-count">
+        {shown
+          ? `${shown.length} class${shown.length === 1 ? "" : "es"}${query.trim() ? "" : " students are discussing"}`
+          : "Loading…"}
+      </p>
+      {error && <p className="find-empty text-destructive">{error}</p>}
+      {!error && shown?.length === 0 && (
+        <p className="find-empty">No classes match. Try other words or fewer filters.</p>
+      )}
+      <ul className="find-list">
         {!error &&
-          results?.map(({ course, matched, snippet }) => (
-            <Link
-              key={course.id}
-              to="/courses/$courseId"
-              params={{ courseId: course.id }}
-              draggable
-              onDragStart={(e) => e.dataTransfer.setData(DRAG_TYPE, course.id)}
-              className="group block p-4 transition-colors hover:bg-accent/40 sm:p-5"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-xs font-bold text-primary">
-                      {course.number}
-                    </span>
-                    <span className="text-[11px] font-semibold text-muted-foreground">
-                      {[course.unitsTotal && `${course.unitsTotal} units`, course.terms.join(" / ")]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </span>
-                  </div>
-                  <h3 className="mt-1 font-display text-base font-extrabold leading-tight text-foreground">
-                    {course.title}
-                  </h3>
-                </div>
-                <span className="flex shrink-0 items-center gap-2">
-                  <AddToPlanButton courseId={course.id} size="icon" />
-                  <AddToCartButton courseId={course.id} size="icon" />
-                  <ArrowUpRight className="h-5 w-5 text-muted-foreground transition group-hover:text-primary" />
-                </span>
-              </div>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{snippet}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {matched.map((m) => (
-                  <SourceBadge key={m} source={m} />
-                ))}
-              </div>
-            </Link>
+          shown?.map((r) => (
+            <li key={r.course.id}>
+              <FindCard result={r} showSnippet={!!query.trim()} />
+            </li>
           ))}
-      </div>
-    </section>
-  );
-
-  return (
-    <main className="mx-auto max-w-7xl">
-      {searchPanel}
-      {resultsList}
+      </ul>
+      <p className="find-note">
+        From the MIT Subject Listing. Check units, prerequisites and requirement tags there before
+        relying on them.
+      </p>
     </main>
+  );
+}
+
+const GIR_TAGS = [
+  "Calc I",
+  "Calc II",
+  "Phys I",
+  "Phys II",
+  "Chem",
+  "Bio",
+  "REST",
+  "Lab",
+  "HASS-A",
+  "HASS-H",
+  "HASS-S",
+  "CI-H",
+];
+
+/** A class in the results: where it stands in your plan, and buttons to cart or place it. */
+function FindCard({ result: r, showSnippet }: { result: SearchResult; showSnippet: boolean }) {
+  const { plan, addToCart, removeFromCart } = usePlan();
+  const c = r.course;
+  const key = Object.entries(plan.slots).find(([, ids]) => ids.includes(c.id))?.[0];
+  const credit = plan.credit.includes(c.id);
+  const inCart = plan.cart.includes(c.id);
+  const [y, season] = (key?.split("-") ?? []) as [string, Season];
+  const stop = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  return (
+    <Link
+      to="/courses/$courseId"
+      params={{ courseId: c.id }}
+      draggable
+      onDragStart={(e) => e.dataTransfer.setData(DRAG_TYPE, c.id)}
+      className="find-card"
+    >
+      <div className="find-card-top">
+        <span className="find-num">{c.number}</span>
+        {c.unitsTotal != null && <span className="find-units">{c.unitsTotal} units</span>}
+        <span className="find-status">
+          {credit ? (
+            <span className="find-done">
+              <Check /> Prior credit
+            </span>
+          ) : key ? (
+            <span className="find-done">
+              <Check /> {season} {seasonYear(Number(y), season)}
+            </span>
+          ) : (
+            <>
+              <button
+                type="button"
+                className={`find-cart ${inCart ? "find-cart-on" : ""}`}
+                onClick={(e) => {
+                  stop(e);
+                  if (inCart) removeFromCart(c.id);
+                  else addToCart([c.id]);
+                }}
+                aria-pressed={inCart}
+                aria-label={inCart ? `Remove ${c.id} from cart` : `Add ${c.id} to cart`}
+              >
+                <ShoppingCart />
+                {inCart ? "In cart" : "Cart"}
+              </button>
+              <AddToPlanButton courseId={c.id} label="Place" className="find-place" />
+            </>
+          )}
+        </span>
+      </div>
+      <h3 className="find-name">{c.title}</h3>
+      {showSnippet && r.snippet && <p className="find-snippet">{r.snippet}</p>}
+      <div className="find-tags">
+        {girTags(c.units).map((t) => (
+          <span key={t} className="find-tag find-tag-gir">
+            {t}
+          </span>
+        ))}
+        {c.terms.length > 0 && <span className="find-tag">{c.terms.join(" · ")}</span>}
+        {showSnippet && r.matched.map((m) => <SourceBadge key={m} source={m} />)}
+      </div>
+    </Link>
   );
 }
 

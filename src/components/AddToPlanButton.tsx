@@ -9,9 +9,14 @@ import { Button } from "@/components/ui/button";
 export function AddToPlanButton({
   courseId,
   size = "sm",
+  label,
+  className,
 }: {
   courseId: string;
   size?: "sm" | "icon";
+  /** a plain text trigger (e.g. "Place") in place of the icon button */
+  label?: string;
+  className?: string;
 }) {
   const { plan, add, addNext, remove } = usePlan();
   const [open, setOpen] = useState(false);
@@ -35,24 +40,36 @@ export function AddToPlanButton({
 
   return (
     <div ref={ref} className="relative inline-block" onClick={stop}>
-      <Button
-        variant={currentKey ? "outline" : "default"}
-        size={size}
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        aria-label={
-          currentKey
-            ? `${courseId} is in Year ${y} ${season}; move it`
-            : `Add ${courseId} to your plan`
-        }
-        title={currentKey ? `In your plan: Year ${y} ${season}` : "Add to a term in your plan"}
-      >
-        {currentKey ? <Check /> : <CalendarPlus />}
-        {size === "sm" && (currentKey ? `Year ${y} ${season}` : "Add to plan")}
-      </Button>
+      {label ? (
+        <button
+          type="button"
+          className={className}
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          aria-label={`${label} ${courseId} in a term`}
+        >
+          {label}
+        </button>
+      ) : (
+        <Button
+          variant={currentKey ? "outline" : "default"}
+          size={size}
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          aria-label={
+            currentKey
+              ? `${courseId} is in Year ${y} ${season}; move it`
+              : `Add ${courseId} to your plan`
+          }
+          title={currentKey ? `In your plan: Year ${y} ${season}` : "Add to a term in your plan"}
+        >
+          {currentKey ? <Check /> : <CalendarPlus />}
+          {size === "sm" && (currentKey ? `Year ${y} ${season}` : "Add to plan")}
+        </Button>
+      )}
       {open && (
         <div
-          className="absolute right-0 top-full z-40 mt-1 w-72 rounded-lg border border-border bg-card p-3 text-left shadow-lg"
+          className="absolute right-0 top-full z-40 mt-1 w-72 rounded-xl border border-border bg-popover p-3 text-left shadow-lg"
           role="dialog"
           aria-label={`Choose a term for ${courseId}`}
         >
