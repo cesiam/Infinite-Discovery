@@ -11,6 +11,7 @@ import { usePlan } from "@/lib/plan";
 import { useDarkMode } from "@/lib/theme";
 import { Hero } from "./Hero";
 import { PlanBoard } from "./PlanBoard";
+import { Profile } from "./Profile";
 
 // The rail's tabs each open in the panel beside the plan; clicking the open one again
 // goes back to search.
@@ -49,6 +50,7 @@ function Rail() {
           );
         })}
       </div>
+      <Profile />
     </nav>
   );
 }

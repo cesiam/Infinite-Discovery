@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Copy, Plus, Trash2 } from "lucide-react";
 import { usePlan } from "@/lib/plan";
 import { useUser } from "@/lib/auth";
-import { SignIn } from "./SignIn";
 
 /** The planner's header: a tab per plan (double-click to rename), new, duplicate, delete. */
 export function PlanSwitcher() {
@@ -100,7 +99,6 @@ export function PlanSwitcher() {
               {confirming && "Delete?"}
             </button>
           )}
-          <SignIn className="pill-btn-red" />
         </div>
       </div>
       <p className="plan-header-note">
