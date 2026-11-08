@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Copy, Plus, Trash2 } from "lucide-react";
+import { Copy, Pencil, Plus, Trash2 } from "lucide-react";
 import { usePlan } from "@/lib/plan";
 import { useUser } from "@/lib/auth";
 
-/** The planner's header: a tab per plan (double-click to rename), new, duplicate, delete. */
+/** The planner's header: a tab per plan (click the open one to rename), new, duplicate, delete. */
 export function PlanSwitcher() {
   const user = useUser();
   const { plans, activeId, switchPlan, newPlan, renamePlan, deletePlan, saving } = usePlan();
@@ -12,6 +12,10 @@ export function PlanSwitcher() {
   const [name, setName] = useState("");
   const [confirming, setConfirming] = useState(false);
 
+  const startRename = () => {
+    setName(active?.name ?? "");
+    setEditing(true);
+  };
   const finishRename = () => {
     if (name.trim() && name.trim() !== active?.name) renamePlan(name.trim());
     setEditing(false);
@@ -32,6 +36,7 @@ export function PlanSwitcher() {
                 className="plan-tab plan-tab-active"
                 value={name}
                 autoFocus
+                onFocus={(e) => e.target.select()}
                 maxLength={80}
                 aria-label="Plan name"
                 onChange={(e) => setName(e.target.value)}
@@ -48,20 +53,26 @@ export function PlanSwitcher() {
                 role="tab"
                 aria-selected={p.id === activeId}
                 className={`plan-tab ${p.id === activeId ? "plan-tab-active" : ""}`}
-                onClick={() => switchPlan(p.id)}
-                onDoubleClick={() => {
-                  if (p.id !== activeId) return;
-                  setName(p.name);
-                  setEditing(true);
-                }}
-                title={p.id === activeId ? "Double-click to rename" : `Switch to ${p.name}`}
+                onClick={() => (p.id === activeId ? startRename() : switchPlan(p.id))}
+                title={p.id === activeId ? "Click to rename" : `Switch to ${p.name}`}
               >
                 {p.name}
+                {p.id === activeId && <Pencil className="plan-tab-pencil" aria-hidden />}
               </button>
             ),
           )}
         </div>
         <div className="plan-header-actions">
+          <button
+            type="button"
+            className="pill-btn"
+            onClick={startRename}
+            aria-label={`Rename ${active?.name ?? "this plan"}`}
+            title="Rename this plan"
+          >
+            <Pencil />
+            Rename
+          </button>
           <button
             type="button"
             className="pill-btn"
