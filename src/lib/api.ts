@@ -46,6 +46,8 @@ export interface CourseSummary {
   units: string;
   unitsTotal: number | null;
   terms: Season[];
+  /** Hard prerequisites from the catalog (alternatives flattened); only the batch endpoint sends them. */
+  requires: string[];
 }
 export interface SearchFilters {
   department?: string;
@@ -248,6 +250,7 @@ const toSummary = (id: string, s: ApiSummary): CourseSummary => ({
   units: s.units,
   unitsTotal: s.units_total,
   terms: s.terms,
+  requires: [],
 });
 
 type ApiSearchResult = ApiSummary & {
@@ -327,10 +330,15 @@ export async function findCourses(
 export async function getCourseSummaries(ids: string[]): Promise<Record<string, CourseSummary>> {
   if (!ids.length) return {};
   const params = new URLSearchParams(ids.map((id) => ["id", id]));
-  const body = await request<{ courses: Record<string, ApiSummary & { id: string }> }>(
-    `/courses/batch?${params}`,
+  const body = await request<{
+    courses: Record<string, ApiSummary & { id: string; prereqs?: string[] }>;
+  }>(`/courses/batch?${params}`);
+  return Object.fromEntries(
+    Object.entries(body.courses).map(([id, s]) => [
+      id,
+      { ...toSummary(id, s), requires: s.prereqs ?? [] },
+    ]),
   );
-  return Object.fromEntries(Object.entries(body.courses).map(([id, s]) => [id, toSummary(id, s)]));
 }
 
 export async function suggestSoftPrereq(

@@ -97,9 +97,21 @@ def list_courses(q: str = Query("", max_length=100), limit: int = Query(20, ge=1
 
 @router.get("/courses/batch")
 def batch(id: list[str] = Query(default=[], max_length=200), conn=Depends(get_conn)):
-    """Summaries for many courses at once (the plan board's units and terms)."""
-    return {"courses": {course_id: {"id": course_id, "number": course_id, **info}
-                        for course_id, info in summaries(conn, id).items()}}
+    """Summaries for many courses at once (the plan board's units and terms), with each
+    course's hard prerequisites from the catalog so the planner can flag their order."""
+    found = summaries(conn, id)
+    prereqs = {course_id: [] for course_id in found}
+    if found:
+        rows = conn.execute(
+            f"SELECT course_id, prereq_course_id FROM prereqs WHERE kind = 'hard' "
+            f"AND course_id IN ({','.join('?' * len(found))}) ORDER BY course_id, prereq_course_id",
+            list(found),
+        ).fetchall()
+        for row in rows:
+            prereqs[row["course_id"]].append(row["prereq_course_id"])
+    return {"courses": {course_id: {"id": course_id, "number": course_id, **info,
+                                    "prereqs": prereqs[course_id]}
+                        for course_id, info in found.items()}}
 
 
 @router.get("/courses/{course_id}")

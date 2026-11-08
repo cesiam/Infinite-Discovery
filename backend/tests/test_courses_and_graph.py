@@ -75,6 +75,11 @@ def test_batch_summaries(client):
     assert set(courses) == {"18.06", "14.01"} and courses["18.06"]["units_total"] == 12
 
 
+def test_batch_lists_hard_prereqs(client):
+    courses = client.get("/courses/batch", params=[("id", "6.1210"), ("id", "14.01")]).json()["courses"]
+    assert "6.100A" in courses["6.1210"]["prereqs"] and courses["14.01"]["prereqs"] == []
+
+
 def test_graph_shows_hard_and_soft_edges_with_node_fields(client, login):
     student, _ = login("ana@mit.edu")
     client.post("/courses/6.3900/prereqs/soft", json={"prereq_course_id": "6.1200"}, headers=student)
