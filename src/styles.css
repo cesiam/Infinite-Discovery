@@ -1892,3 +1892,38 @@ input.plan-tab {
 .side-back:hover {
   color: var(--primary);
 }
+.hero-feed {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: min(440px, 44%);
+}
+.hero-feed-item {
+  display: block;
+  padding: 10px 16px;
+  border-radius: 16px 16px 16px 4px;
+  background: color-mix(in oklab, var(--popover) 62%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--glass-edge);
+  box-shadow: 0 10px 24px -18px rgba(5, 32, 74, 0.45);
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--foreground);
+  transition:
+    color 0.16s,
+    border-color 0.16s,
+    transform 0.16s;
+}
+.hero-feed-item:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateX(4px);
+}
+@media (max-width: 980px) {
+  .hero-feed {
+    max-width: none;
+    order: 2;
+  }
+}

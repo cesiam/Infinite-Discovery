@@ -9,6 +9,14 @@ const WORDS = [
   { word: "INFINITE", pixel: [4] },
   { word: "DISCOVERY", pixel: [3, 7] },
 ];
+// The feed from the old opening screen: things students wondered after a class.
+const FEED = [
+  "I loved the hands-on circuits in 6.1910 — what should I take next?",
+  "18.06 finally made linear algebra click. Where do I go deeper?",
+  "21M.301 changed how I hear music — any good follow-ups?",
+  "14.01 made the news make sense. Which econ class comes next?",
+];
+
 const STARTERS = [
   { label: "Machine learning", color: "var(--primary)" },
   { label: "Climate & energy", color: "var(--sky)" },
@@ -159,18 +167,22 @@ export function Hero() {
           </Link>
           <nav className="hero-pills" aria-label="Main">
             <div className="hero-navbar">
-              <Link to="/" search={{ plan: 1 }} aria-current="page">
-                Plan
-              </Link>
-              <Link to="/" search={{ plan: 1, q: "" }}>
-                Search
-              </Link>
-              <Link to="/graph">Graph</Link>
-              <Link to="/community">Community</Link>
+              <Link to="/fingerprints">Fingerprints</Link>
+              <Link to="/community">Student output</Link>
             </div>
             <SignIn className="hero-signin" />
           </nav>
         </div>
+
+        <ul className="hero-feed" aria-label="What students are asking">
+          {FEED.map((q) => (
+            <li key={q}>
+              <Link to="/community" className="hero-feed-item">
+                {q}
+              </Link>
+            </li>
+          ))}
+        </ul>
 
         <Headline />
 
