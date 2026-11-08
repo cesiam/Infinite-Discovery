@@ -1,10 +1,12 @@
-import { useState, type DragEvent, type ReactNode } from "react";
+import { useMemo, useState, type DragEvent, type ReactNode } from "react";
 import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MAX_PLAN_YEARS, planKey, type Season } from "@/lib/api";
 import { termCode } from "@/lib/blocks";
 import { DRAG_TYPE } from "@/lib/dnd";
 import { PLAN_TERMS, planTermOf, seasonYear, usePlan } from "@/lib/plan";
+import { planIssues, type Issue } from "@/lib/issues";
+import { BigPicture } from "./BigPicture";
 import { CourseBlock } from "./CourseBlock";
 import { PlanSwitcher } from "./PlanSwitcher";
 import { QuickAdd } from "./QuickAdd";
@@ -61,10 +63,12 @@ function TermColumn({
   isNow,
   adding,
   setAdding,
+  issues,
 }: {
   year: number;
   season: Season;
   isNow: boolean;
+  issues: Issue[];
   adding: boolean;
   setAdding: (key: string | null) => void;
 }) {
@@ -87,7 +91,15 @@ function TermColumn({
       </div>
       <div className="term-blocks">
         {ids.map((id) => (
-          <CourseBlock key={id} id={id} onRemove={() => remove(id)} />
+          <CourseBlock
+            key={id}
+            id={id}
+            onRemove={() => remove(id)}
+            warning={issues
+              .filter((i) => i.courseId === id)
+              .map((i) => i.message)
+              .join(". ")}
+          />
         ))}
       </div>
       {ids.length > 0 && (
@@ -127,6 +139,14 @@ export function PlanBoard() {
   const now = planTermOf(new Date());
   const nowKey = planKey(now.year, now.season);
   const creditUnits = plan.credit.reduce((s, id) => s + units(id), 0);
+  const issues = useMemo(
+    () =>
+      planIssues(plan, courses, (key) => {
+        const [y, season] = key.split("-") as [string, Season];
+        return `${season} ${seasonYear(Number(y), season)}`;
+      }),
+    [plan, courses],
+  );
 
   const toggle = (year: number) =>
     setExpanded((s) => {
@@ -152,6 +172,7 @@ export function PlanBoard() {
   return (
     <>
       <PlanSwitcher />
+      <BigPicture now={now} issues={issues} onAddTo={setAdding} />
       <section className="card-glass plan-card" aria-label="Degree requirements">
         <RequirementsPanel />
       </section>
@@ -288,6 +309,7 @@ export function PlanBoard() {
                     isNow={planKey(year, season) === nowKey}
                     adding={adding === planKey(year, season)}
                     setAdding={setAdding}
+                    issues={issues.filter((i) => i.key === planKey(year, season))}
                   />
                 ))}
               </div>
