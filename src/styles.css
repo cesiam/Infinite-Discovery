@@ -290,6 +290,10 @@
   box-shadow: 0 24px 50px -28px rgba(34, 24, 28, 0.7);
   z-index: 30;
 }
+.rail > *,
+.rail-group > * {
+  flex-shrink: 0;
+}
 .rail-logo {
   display: grid;
   place-items: center;
@@ -818,4 +822,109 @@
   .hero-l {
     transition: none;
   }
+}
+
+/* ---- Planner header ---- */
+.plan-header {
+  padding: 18px 22px 16px;
+  background:
+    linear-gradient(110deg, color-mix(in oklab, var(--pink) 16%, transparent), transparent 60%),
+    var(--card);
+}
+.plan-header-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.plan-wordmark {
+  font: 800 17px/1.05 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+.plan-wordmark span {
+  display: block;
+  color: var(--primary);
+}
+.plan-tabs {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  overflow-x: auto;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--foreground) 6%, transparent);
+}
+.plan-tab {
+  flex: none;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  background: transparent;
+  outline: none;
+}
+.plan-tab:hover {
+  color: var(--foreground);
+}
+.plan-tab-active {
+  background: var(--popover);
+  color: var(--foreground);
+  box-shadow: 0 4px 12px -6px rgba(34, 24, 28, 0.35);
+}
+input.plan-tab {
+  width: 180px;
+  cursor: text;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+.plan-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-edge);
+  background: var(--popover);
+  color: var(--foreground);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px -10px rgba(34, 24, 28, 0.4);
+}
+.pill-btn svg {
+  width: 17px;
+  height: 17px;
+}
+.pill-btn:hover {
+  border-color: var(--primary);
+}
+.pill-btn-danger {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+}
+.pill-btn-red {
+  height: 42px;
+  border-radius: 999px;
+  padding: 0 18px;
+  font-size: 14px;
+  background: linear-gradient(160deg, #f04048, #d41f26);
+}
+.plan-header-note {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--muted-foreground);
 }
