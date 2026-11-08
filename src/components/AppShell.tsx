@@ -4,14 +4,17 @@ import {
   CalendarDays,
   Fingerprint,
   Infinity as InfinityIcon,
+  Moon,
   Network,
   PenLine,
   Search,
   ShoppingCart,
+  Sun,
   Users,
   X,
 } from "lucide-react";
 import { usePlan } from "@/lib/plan";
+import { useDarkMode } from "@/lib/theme";
 import { CartList } from "./Cart";
 import { Hero } from "./Hero";
 import { PlanBoard } from "./PlanBoard";
@@ -67,7 +70,7 @@ function RailCart() {
   );
 }
 
-function Rail() {
+function Rail({ dark, toggleDark }: { dark: boolean; toggleDark: () => void }) {
   const navigate = useNavigate();
   return (
     <nav className="rail" aria-label="Main">
@@ -104,12 +107,22 @@ function Rail() {
           <Search />
         </button>
       </div>
+      <button
+        type="button"
+        className="rail-btn rail-bottom"
+        onClick={toggleDark}
+        aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+        title={dark ? "Light mode" : "Dark mode"}
+      >
+        {dark ? <Sun /> : <Moon />}
+      </button>
     </nav>
   );
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { pathname, search } = useLocation();
+  const [dark, toggleDark] = useDarkMode();
   // "/" is the opening screen, "/?plan=1" the planner with search beside it. A course page
   // also opens beside the plan, so its class can be dragged straight onto a term.
   const home = pathname === "/" && !(search as { plan?: 1 }).plan;
@@ -123,7 +136,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   return (
     <div className="planner-app">
-      <Rail />
+      <Rail dark={dark} toggleDark={toggleDark} />
       {besidePlan ? (
         <>
           <div className="planner-main">
