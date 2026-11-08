@@ -5,6 +5,7 @@ import {
   Fingerprint,
   Infinity as InfinityIcon,
   MessagesSquare,
+  Network,
   ShoppingCart,
 } from "lucide-react";
 import { usePlan } from "@/lib/plan";
@@ -13,12 +14,14 @@ import { Hero } from "./Hero";
 import { PlanBoard } from "./PlanBoard";
 import { Profile } from "./Profile";
 
-// The rail's tabs each open in the panel beside the plan; clicking the open one again
-// goes back to search.
+// The rail's tabs open in the panel beside the plan (the graph takes the whole page);
+// clicking the open one again goes back to the plan and search.
 const TABS = [
   { to: "/fingerprints", label: "Fingerprints", icon: Fingerprint },
   { to: "/community", label: "Student output", icon: MessagesSquare },
   { to: "/cart", label: "Class cart", icon: ShoppingCart },
+  // the graph needs the room, so it takes the whole page instead of the side panel
+  { to: "/graph", label: "Graph", icon: Network },
 ] as const;
 
 function Rail() {

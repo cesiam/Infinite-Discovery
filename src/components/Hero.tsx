@@ -169,6 +169,7 @@ export function Hero() {
             <div className="hero-navbar">
               <Link to="/fingerprints">Fingerprints</Link>
               <Link to="/community">Student output</Link>
+              <Link to="/graph">Graph</Link>
             </div>
             <SignIn className="hero-signin" />
           </nav>
