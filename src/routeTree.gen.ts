@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CartRouteImport } from './routes/cart'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as ContributeRouteImport } from './routes/contribute'
 import { Route as FingerprintsRouteImport } from './routes/fingerprints'
@@ -19,6 +20,11 @@ import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommunityRoute = CommunityRouteImport.update({
@@ -49,6 +55,7 @@ const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cart': typeof CartRoute
   '/community': typeof CommunityRoute
   '/contribute': typeof ContributeRoute
   '/fingerprints': typeof FingerprintsRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cart': typeof CartRoute
   '/community': typeof CommunityRoute
   '/contribute': typeof ContributeRoute
   '/fingerprints': typeof FingerprintsRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cart': typeof CartRoute
   '/community': typeof CommunityRoute
   '/contribute': typeof ContributeRoute
   '/fingerprints': typeof FingerprintsRoute
@@ -76,6 +85,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/cart'
     | '/community'
     | '/contribute'
     | '/fingerprints'
@@ -84,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/cart'
     | '/community'
     | '/contribute'
     | '/fingerprints'
@@ -92,6 +103,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/cart'
     | '/community'
     | '/contribute'
     | '/fingerprints'
@@ -101,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CartRoute: typeof CartRoute
   CommunityRoute: typeof CommunityRoute
   ContributeRoute: typeof ContributeRoute
   FingerprintsRoute: typeof FingerprintsRoute
@@ -115,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/community': {
@@ -157,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CartRoute: CartRoute,
   CommunityRoute: CommunityRoute,
   ContributeRoute: ContributeRoute,
   FingerprintsRoute: FingerprintsRoute,

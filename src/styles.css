@@ -1823,3 +1823,19 @@ input.plan-tab {
   font-size: 12px;
   color: var(--muted-foreground);
 }
+.side-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+.side-back svg {
+  width: 15px;
+  height: 15px;
+}
+.side-back:hover {
+  color: var(--primary);
+}

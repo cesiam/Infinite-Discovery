@@ -1,132 +1,68 @@
-import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Link, useLocation } from "@tanstack/react-router";
+import { type ReactNode } from "react";
 import {
-  CalendarDays,
+  ArrowLeft,
   Fingerprint,
   Infinity as InfinityIcon,
-  Moon,
-  Network,
-  PenLine,
-  Search,
+  MessagesSquare,
   ShoppingCart,
-  Sun,
-  Users,
-  X,
 } from "lucide-react";
 import { usePlan } from "@/lib/plan";
 import { useDarkMode } from "@/lib/theme";
-import { CartList } from "./Cart";
 import { Hero } from "./Hero";
 import { PlanBoard } from "./PlanBoard";
 
-const PAGES = [
-  { to: "/", label: "Plan", icon: CalendarDays, search: { plan: 1 as const } },
-  { to: "/graph", label: "Graph", icon: Network },
-  { to: "/community", label: "Community", icon: Users },
+// The rail's tabs each open in the panel beside the plan; clicking the open one again
+// goes back to search.
+const TABS = [
   { to: "/fingerprints", label: "Fingerprints", icon: Fingerprint },
-  { to: "/contribute", label: "Contribute", icon: PenLine },
+  { to: "/community", label: "Student output", icon: MessagesSquare },
+  { to: "/cart", label: "Class cart", icon: ShoppingCart },
 ] as const;
 
-/** The cart's count on the rail; opens the list beside it. */
-function RailCart() {
+function Rail() {
+  const { pathname } = useLocation();
   const { plan } = usePlan();
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const close = (e: MouseEvent) =>
-      ref.current && !ref.current.contains(e.target as Node) && setOpen(false);
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
-  }, [open]);
-  return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        className="rail-btn"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        aria-label={`Cart, ${plan.cart.length} classes`}
-        title="Class cart"
-      >
-        <ShoppingCart />
-        {plan.cart.length > 0 && <span className="rail-badge">{plan.cart.length}</span>}
-      </button>
-      {open && (
-        <div className="rail-pop glass-strong">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="label-mono">Class cart</p>
-            <button type="button" onClick={() => setOpen(false)} aria-label="Close cart">
-              <X className="h-4 w-4 text-muted-foreground" />
-            </button>
-          </div>
-          <CartList compact />
-          <p className="mt-2 text-[11px] font-semibold text-muted-foreground">
-            Drag a class onto a term in your plan, or press Place.
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Rail({ dark, toggleDark }: { dark: boolean; toggleDark: () => void }) {
-  const navigate = useNavigate();
   return (
     <nav className="rail" aria-label="Main">
       <Link to="/" className="rail-logo" aria-label="Infinite Discovery home" title="Home">
         <InfinityIcon />
       </Link>
       <div className="rail-group">
-        {PAGES.map(({ to, label, icon: Icon, ...rest }) => (
-          <Link
-            key={label}
-            to={to}
-            search={"search" in rest ? rest.search : {}}
-            className="rail-btn"
-            activeOptions={{ exact: to === "/", includeSearch: false }}
-            activeProps={{ className: "rail-btn-active", "aria-current": "page" }}
-            aria-label={label}
-            title={label}
-          >
-            <Icon />
-          </Link>
-        ))}
-        <RailCart />
-        <button
-          type="button"
-          className="rail-btn"
-          aria-label="Search classes"
-          title="Search classes"
-          onClick={() =>
-            void navigate({ to: "/", search: { plan: 1 } }).then(() =>
-              document.getElementById("course-search")?.focus(),
-            )
-          }
-        >
-          <Search />
-        </button>
+        {TABS.map(({ to, label, icon: Icon }) => {
+          const open = pathname === to;
+          return (
+            <Link
+              key={to}
+              to={open ? "/" : to}
+              search={open ? { plan: 1 } : {}}
+              className={`rail-btn ${open ? "rail-btn-active" : ""}`}
+              aria-current={open ? "page" : undefined}
+              aria-label={to === "/cart" ? `${label}, ${plan.cart.length} classes` : label}
+              title={open ? `Close ${label.toLowerCase()}` : label}
+            >
+              <Icon />
+              {to === "/cart" && plan.cart.length > 0 && (
+                <span className="rail-badge">{plan.cart.length}</span>
+              )}
+            </Link>
+          );
+        })}
       </div>
-      <button
-        type="button"
-        className="rail-btn rail-bottom"
-        onClick={toggleDark}
-        aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-        title={dark ? "Light mode" : "Dark mode"}
-      >
-        {dark ? <Sun /> : <Moon />}
-      </button>
     </nav>
   );
 }
 
+const SIDE_PAGES = ["/", "/fingerprints", "/community", "/cart"];
+
 export function AppShell({ children }: { children: ReactNode }) {
   const { pathname, search } = useLocation();
-  const [dark, toggleDark] = useDarkMode();
-  // "/" is the opening screen, "/?plan=1" the planner with search beside it. A course page
-  // also opens beside the plan, so its class can be dragged straight onto a term.
+  useDarkMode();
+  // "/" is the opening screen, "/?plan=1" the planner with search beside it. The rail's
+  // tabs and course pages open in that same panel, so a class can go straight onto a term.
   const home = pathname === "/" && !(search as { plan?: 1 }).plan;
-  const besidePlan = pathname === "/" || pathname.startsWith("/courses/");
+  const besidePlan = SIDE_PAGES.includes(pathname) || pathname.startsWith("/courses/");
+  const tab = TABS.find((t) => t.to === pathname);
 
   if (home)
     return (
@@ -136,13 +72,22 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   return (
     <div className="planner-app">
-      <Rail dark={dark} toggleDark={toggleDark} />
+      <Rail />
       {besidePlan ? (
         <>
           <div className="planner-main">
             <PlanBoard />
           </div>
-          <aside className="planner-side glass page-pane @container" aria-label="Find classes">
+          <aside
+            className="planner-side glass page-pane @container"
+            aria-label={tab?.label ?? "Find classes"}
+          >
+            {tab && (
+              <Link to="/" search={{ plan: 1 }} className="side-back">
+                <ArrowLeft />
+                Back to search
+              </Link>
+            )}
             {children}
           </aside>
         </>
