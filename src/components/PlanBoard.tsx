@@ -6,7 +6,7 @@ import { termCode } from "@/lib/blocks";
 import { DRAG_TYPE } from "@/lib/dnd";
 import { PLAN_TERMS, planTermOf, seasonYear, usePlan } from "@/lib/plan";
 import { planIssues, type Issue } from "@/lib/issues";
-import { BigPicture } from "./BigPicture";
+import { useRequirementsDock } from "@/lib/dock";
 import { CourseBlock } from "./CourseBlock";
 import { PlanSwitcher } from "./PlanSwitcher";
 import { QuickAdd } from "./QuickAdd";
@@ -15,8 +15,6 @@ import { YearSchedule } from "./YearSchedule";
 
 export { DRAG_TYPE };
 
-/** A full term, for the load bar under each column. */
-const FULL_TERM = 60;
 const CREDIT = "credit";
 
 /** Somewhere a class can be dropped: a term, the cart or prior credit. */
@@ -26,6 +24,7 @@ function useDrop(onDrop: (id: string) => void) {
     over,
     handlers: {
       onDragOver: (e: DragEvent) => {
+        if (!e.dataTransfer.types.includes(DRAG_TYPE)) return;
         e.preventDefault();
         setOver(true);
       },
@@ -102,11 +101,6 @@ function TermColumn({
           />
         ))}
       </div>
-      {ids.length > 0 && (
-        <div className="term-load" title={`${units} of ${FULL_TERM} units`}>
-          <span style={{ width: `${Math.min(units / FULL_TERM, 1) * 100}%` }} />
-        </div>
-      )}
       {adding ? (
         <QuickAdd
           label={`Add a class to ${season} ${seasonYear(year, season)}`}
@@ -131,6 +125,7 @@ function TermColumn({
 export function PlanBoard() {
   const { plan, courses, addYear, removeYear, addToCart, removeFromCart, remove } = usePlan();
   const { addCredit, removeCredit } = usePlan();
+  const dock = useRequirementsDock();
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const [confirming, setConfirming] = useState<number | null>(null);
   const [adding, setAdding] = useState<string | null>(null);
@@ -172,12 +167,16 @@ export function PlanBoard() {
   return (
     <>
       <PlanSwitcher />
-      <BigPicture now={now} issues={issues} onAddTo={setAdding} />
-      <section className="card-glass plan-card" aria-label="Degree requirements">
-        <RequirementsPanel />
-      </section>
+      <h2 className="big-title">
+        Time at MIT<span>.</span>
+      </h2>
+      {dock === "plan" && (
+        <section className="card-glass plan-card" aria-label="Degree requirements">
+          <RequirementsPanel dock="plan" />
+        </section>
+      )}
 
-      <section className="card-glass plan-card" aria-label="Terms">
+      <section className="card-glass plan-card plan-terms" aria-label="Terms">
         <div className="plan-card-head">
           <p className="label-mono">Class cart · drag onto a term</p>
           <p className="plan-card-hint">Or open any class to pick its term from a list.</p>

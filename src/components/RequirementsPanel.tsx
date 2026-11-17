@@ -1,6 +1,16 @@
-import { Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Check, CircleDashed, CircleHelp, ExternalLink, Plus, X } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  Check,
+  CircleDashed,
+  CircleHelp,
+  ExternalLink,
+  GripVertical,
+  PanelRight,
+  PanelTop,
+  Plus,
+  X,
+} from "lucide-react";
 import {
   ApiError,
   apiUnreachable,
@@ -11,9 +21,9 @@ import {
   type ProgramSummary,
   type RequirementProgress,
 } from "@/lib/api";
-import { DRAG_TYPE } from "@/lib/dnd";
+import { DRAG_TYPE, PANEL_DRAG_TYPE } from "@/lib/dnd";
+import { setRequirementsDock, type Dock } from "@/lib/dock";
 import { usePlan } from "@/lib/plan";
-import { tone } from "@/lib/blocks";
 import { Button } from "@/components/ui/button";
 
 const KIND_LABELS: Record<ProgramKind, string> = {
@@ -29,8 +39,6 @@ function shortName(p: ProgramProgress) {
   if (p.kind === "major" && p.code) return p.code;
   return p.name.replace(/^Minor in /, "").replace(/^HASS Concentration: /, "");
 }
-
-const creditedCourses = (p: ProgramProgress) => p.requirements.flatMap((r) => r.credited);
 
 type Spotlight = { label: string; ids: string[] };
 
@@ -50,7 +58,42 @@ function sections(p: ProgramProgress) {
  * a card; hovering a row or a card spotlights its classes in the plan, clicking keeps the
  * spotlight on. A program's full checklist opens below the cards.
  */
-export function RequirementsPanel() {
+/** Moves the requirements between the plan and the side panel: drag it across, or click. */
+function useMoveRequirements() {
+  const navigate = useNavigate();
+  return (to: Dock) => {
+    setRequirementsDock(to);
+    if (to === "side") void navigate({ to: "/requirements" });
+    else void navigate({ to: "/", search: { plan: 1 } });
+  };
+}
+
+function DockHandle({ dock }: { dock: Dock }) {
+  const move = useMoveRequirements();
+  const to: Dock = dock === "plan" ? "side" : "plan";
+  const label = to === "side" ? "Move to the side panel" : "Move back above the plan";
+  return (
+    <button
+      type="button"
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData(PANEL_DRAG_TYPE, to);
+        e.dataTransfer.effectAllowed = "move";
+        document.body.classList.add("dragging-panel");
+      }}
+      onDragEnd={() => document.body.classList.remove("dragging-panel")}
+      onClick={() => move(to)}
+      className="dock-handle"
+      title={`${label} (drag or click)`}
+    >
+      <GripVertical />
+      {to === "side" ? <PanelRight /> : <PanelTop />}
+      <span>{to === "side" ? "Move to side" : "Move above plan"}</span>
+    </button>
+  );
+}
+
+export function RequirementsPanel({ dock }: { dock: Dock }) {
   const { plan, addProgram, removeProgram, setHighlight } = usePlan();
   const courses = useMemo(
     () => [...new Set([...Object.values(plan.slots).flat(), ...plan.credit])].sort(),
@@ -82,6 +125,9 @@ export function RequirementsPanel() {
     };
   }, [plan.programs, courses]);
 
+  // leaving the tab takes its spotlight off the plan
+  useEffect(() => () => setHighlight(null), []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // hovering shows a spotlight for a moment; clicking pins it until clicked again
   const spot = {
     hover: (s: Spotlight | null) => setHighlight(s ? s.ids : (pinned?.ids ?? null)),
@@ -97,47 +143,57 @@ export function RequirementsPanel() {
   return (
     <section aria-label="Degree requirements">
       <div className="plan-card-head">
-        <p className="label-mono">Requirements</p>
-        <p className="plan-card-hint">
+        {dock === "plan" && <p className="label-mono">Requirements</p>}
+        <p className="plan-card-hint mr-auto">
           Hover or select a row to spotlight the classes that count toward it.
         </p>
+        <DockHandle dock={dock} />
       </div>
       {error && <p className="mb-2 text-xs font-bold text-destructive">{error}</p>}
 
-      <div className="req-cards">
-        {progress?.map((p) =>
-          p.kind === "gir" ? (
-            <GirCard
-              key={p.id}
-              program={p}
-              spot={spot}
-              open={open === p.id}
-              onOpen={() => setOpen(open === p.id ? null : p.id)}
-            />
-          ) : (
-            <ProgramCard
-              key={p.id}
-              program={p}
-              spot={spot}
-              open={open === p.id}
-              onOpen={() => setOpen(open === p.id ? null : p.id)}
-              onRemove={() => {
-                if (open === p.id) setOpen(null);
-                removeProgram(p.id);
-              }}
-            />
-          ),
-        )}
-        <button
-          type="button"
-          onClick={() => setAdding((a) => !a)}
-          aria-expanded={adding}
-          className="req-add"
-        >
-          <Plus />
-          Add major, minor or concentration
-        </button>
-      </div>
+      <Masonry
+        items={[
+          ...(progress ?? []).map((p) => ({
+            key: p.id,
+            rows: sections(p).length,
+            node:
+              p.kind === "gir" ? (
+                <GirCard
+                  program={p}
+                  spot={spot}
+                  open={open === p.id}
+                  onOpen={() => setOpen(open === p.id ? null : p.id)}
+                />
+              ) : (
+                <ProgramCard
+                  program={p}
+                  spot={spot}
+                  open={open === p.id}
+                  onOpen={() => setOpen(open === p.id ? null : p.id)}
+                  onRemove={() => {
+                    if (open === p.id) setOpen(null);
+                    removeProgram(p.id);
+                  }}
+                />
+              ),
+          })),
+          {
+            key: "add",
+            rows: 1,
+            node: (
+              <button
+                type="button"
+                onClick={() => setAdding((a) => !a)}
+                aria-expanded={adding}
+                className="req-add"
+              >
+                <Plus />
+                Add major, minor or concentration
+              </button>
+            ),
+          },
+        ]}
+      />
       {warnings.map((w) => (
         <p key={w} className="mt-2 text-xs font-bold text-destructive">
           {w}
@@ -156,6 +212,51 @@ export function RequirementsPanel() {
       )}
       {selected && <ProgramDetail program={selected} onClose={() => setOpen(null)} />}
     </section>
+  );
+}
+
+const COLUMN_MIN = 250; // px: as many columns as fit at least this wide
+const GAP = 12;
+
+/**
+ * The cards packed like a masonry wall: each goes into whichever column is shortest so far,
+ * so a short card (the GIRs) gets another one stacked under it instead of leaving a gap.
+ * Heights are estimated from each card's number of requirement rows.
+ */
+function Masonry({ items }: { items: { key: string; rows: number; node: ReactNode }[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [count, setCount] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () =>
+      setCount(Math.max(1, Math.floor((el.clientWidth + GAP) / (COLUMN_MIN + GAP))));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const columns: (typeof items)[] = Array.from({ length: count }, () => []);
+  const heights = new Array<number>(count).fill(0);
+  for (const item of items) {
+    const i = heights.indexOf(Math.min(...heights));
+    columns[i]!.push(item);
+    heights[i]! += 110 + item.rows * 50 + GAP; // card head + a row per section
+  }
+  return (
+    <div
+      ref={ref}
+      className="req-cards"
+      style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}
+    >
+      {columns.map((col, i) => (
+        <div key={i} className="req-col">
+          {col.map((item) => (
+            <div key={item.key}>{item.node}</div>
+          ))}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -233,7 +334,51 @@ function CardHead({
   );
 }
 
-/** The GIRs: a bar per section of the chart, one segment per requirement. */
+/** A bar per section of the degree chart ("Science core", "Data-centric"), one segment per
+ * requirement; hover or click a row to spotlight the classes that count toward it. */
+function SectionRows({ program: p, spot }: { program: ProgramProgress; spot: SpotProps }) {
+  return (
+    <ul className="req-rows">
+      {sections(p).map(([section, reqs], i) => {
+        const done = reqs.filter((r) => r.status === "done").length;
+        const s = { label: `${p.id}:${section}:${i}`, ids: reqs.flatMap((r) => r.credited) };
+        return (
+          <li key={`${section}-${i}`}>
+            <button
+              type="button"
+              className={`req-row ${spot.pinned === s.label ? "req-row-on" : ""}`}
+              onMouseEnter={() => spot.hover(s)}
+              onMouseLeave={() => spot.hover(null)}
+              onClick={() => spot.toggle(s)}
+              aria-pressed={spot.pinned === s.label}
+              title={reqs.map((r) => `${r.label}: ${r.status}`).join("\n")}
+            >
+              <span className="req-row-label">
+                {section || "Other"}
+                <span>
+                  {done}/{reqs.length}
+                </span>
+              </span>
+              <span className="segs">
+                {reqs.map((r, j) => (
+                  <span key={j} className="seg">
+                    <span
+                      style={{
+                        width: `${(r.status === "done" ? 1 : (r.fraction ?? 0)) * 100}%`,
+                      }}
+                    />
+                  </span>
+                ))}
+              </span>
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/** The GIRs: a bar per section of the chart. */
 function GirCard({
   program: p,
   spot,
@@ -248,48 +393,12 @@ function GirCard({
   return (
     <div className={`req-card req-gir ${open ? "req-open" : ""}`}>
       <CardHead program={p} open={open} onOpen={onOpen} />
-      <ul className="req-rows">
-        {sections(p).map(([section, reqs]) => {
-          const done = reqs.filter((r) => r.status === "done").length;
-          const s = { label: `gir:${section}`, ids: reqs.flatMap((r) => r.credited) };
-          return (
-            <li key={section}>
-              <button
-                type="button"
-                className={`req-row ${spot.pinned === s.label ? "req-row-on" : ""}`}
-                onMouseEnter={() => spot.hover(s)}
-                onMouseLeave={() => spot.hover(null)}
-                onClick={() => spot.toggle(s)}
-                aria-pressed={spot.pinned === s.label}
-                title={reqs.map((r) => `${r.label}: ${r.status}`).join("\n")}
-              >
-                <span className="req-row-label">
-                  {section || "Other"}
-                  <span>
-                    {done}/{reqs.length}
-                  </span>
-                </span>
-                <span className="segs">
-                  {reqs.map((r, i) => (
-                    <span key={i} className="seg">
-                      <span
-                        style={{
-                          width: `${(r.status === "done" ? 1 : (r.fraction ?? 0)) * 100}%`,
-                        }}
-                      />
-                    </span>
-                  ))}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      <SectionRows program={p} spot={spot} />
     </div>
   );
 }
 
-/** A major, minor or concentration: its named classes, planned ones filled in. */
+/** A major, minor or concentration: its requirement sections, like the GIRs. */
 function ProgramCard({
   program: p,
   spot,
@@ -303,19 +412,6 @@ function ProgramCard({
   onOpen: () => void;
   onRemove: () => void;
 }) {
-  const { has } = usePlan();
-  const credited = creditedCourses(p);
-  const named = [
-    ...new Set([
-      ...credited,
-      ...p.requirements
-        .filter((r) => r.type === "courses" && r.status !== "done")
-        .flatMap((r) => r.options.slice(0, 3).flat()),
-    ]),
-  ]
-    .map((id) => id.replace("[J]", ""))
-    .slice(0, 12);
-  const s = { label: p.id, ids: credited };
   return (
     <div className={`req-card ${open ? "req-open" : ""}`}>
       <div className="flex items-start gap-2">
@@ -329,24 +425,7 @@ function ProgramCard({
           <X className="h-4 w-4" />
         </button>
       </div>
-      <button
-        type="button"
-        className={`req-spot ${spot.pinned === s.label ? "req-row-on" : ""}`}
-        onMouseEnter={() => spot.hover(s)}
-        onMouseLeave={() => spot.hover(null)}
-        onClick={() => spot.toggle(s)}
-        aria-pressed={spot.pinned === s.label}
-      >
-        Spotlight these classes
-        <ArrowRight className="h-4 w-4" />
-      </button>
-      <ul className="req-chips">
-        {named.map((id) => (
-          <li key={id}>
-            <ChipTag id={id} filled={has(id)} />
-          </li>
-        ))}
-      </ul>
+      <SectionRows program={p} spot={spot} />
     </div>
   );
 }
@@ -388,7 +467,7 @@ function ProgramDetail({ program: p, onClose }: { program: ProgramProgress; onCl
         Tags: <span className="rounded bg-primary px-1 text-primary-foreground">planned</span>{" "}
         <span className="rounded border border-primary px-1 text-primary">in cart</span>{" "}
         <span className="rounded bg-dust px-1">option</span> · drag onto a term, click to add to
-        cart, hover to spotlight
+        cart, + plan / − plan to place or take back, hover to spotlight
       </p>
       <div className="mt-2 max-h-[28rem] overflow-y-auto pr-1">
         {grouped.map(([section, reqs], i) => (
@@ -466,8 +545,10 @@ function RequirementLine({ req: r }: { req: RequirementProgress }) {
 /** A course in a requirement: shows whether it's planned or in the cart; drag it onto a
  * term, click to add it to the cart, hover to spotlight it in the plan. */
 function CourseTag({ id }: { id: string }) {
-  const { plan, has, addToCart, removeFromCart, addNext, setHighlight } = usePlan();
+  const { plan, has, addToCart, removeFromCart, addNext, remove, removeCredit, setHighlight } =
+    usePlan();
   const planned = has(id);
+  const credit = plan.credit.includes(id);
   const inCart = plan.cart.includes(id);
   return (
     <span
@@ -498,7 +579,17 @@ function CourseTag({ id }: { id: string }) {
       >
         {id}
       </button>
-      {!planned && (
+      {planned ? (
+        <button
+          type="button"
+          onClick={() => (credit ? removeCredit(id) : remove(id))}
+          className="border-l border-current/20 px-1 opacity-70 hover:opacity-100"
+          title={credit ? `Remove ${id} from prior credit` : `Take ${id} back out of your plan`}
+          aria-label={`Remove ${id} from your plan`}
+        >
+          − plan
+        </button>
+      ) : (
         <button
           type="button"
           onClick={() => addNext(id)}
@@ -518,29 +609,6 @@ function CourseTag({ id }: { id: string }) {
         ↗
       </Link>
     </span>
-  );
-}
-
-/** A program card's class: filled when planned; otherwise a click puts it in the cart. */
-function ChipTag({ id, filled }: { id: string; filled: boolean }) {
-  const { plan, addToCart, removeFromCart, setHighlight } = usePlan();
-  const inCart = plan.cart.includes(id);
-  return (
-    <button
-      type="button"
-      draggable
-      onDragStart={(e) => e.dataTransfer.setData(DRAG_TYPE, id)}
-      onMouseEnter={() => setHighlight([id])}
-      onMouseLeave={() => setHighlight(null)}
-      disabled={filled}
-      onClick={() => (inCart ? removeFromCart(id) : addToCart([id]))}
-      className={`req-chip ${filled ? `cblock tone-${tone(id)}` : inCart ? "req-chip-cart" : ""}`}
-      title={
-        filled ? `${id} is in your plan` : inCart ? `${id} is in your cart` : `Add ${id} to cart`
-      }
-    >
-      {id}
-    </button>
   );
 }
 

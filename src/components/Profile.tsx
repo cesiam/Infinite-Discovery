@@ -33,7 +33,7 @@ export function Profile() {
   );
 
   return (
-    <div ref={ref} className="rail-bottom relative">
+    <div ref={ref} className="relative">
       <button
         type="button"
         className={`rail-avatar ${user ? "" : "rail-avatar-out"}`}

@@ -15,6 +15,7 @@ import { Route as CommunityRouteImport } from './routes/community'
 import { Route as ContributeRouteImport } from './routes/contribute'
 import { Route as FingerprintsRouteImport } from './routes/fingerprints'
 import { Route as GraphRouteImport } from './routes/graph'
+import { Route as RequirementsRouteImport } from './routes/requirements'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +48,11 @@ const GraphRoute = GraphRouteImport.update({
   path: '/graph',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RequirementsRoute = RequirementsRouteImport.update({
+  id: '/requirements',
+  path: '/requirements',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
   id: '/courses/$courseId',
   path: '/courses/$courseId',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/contribute': typeof ContributeRoute
   '/fingerprints': typeof FingerprintsRoute
   '/graph': typeof GraphRoute
+  '/requirements': typeof RequirementsRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/contribute': typeof ContributeRoute
   '/fingerprints': typeof FingerprintsRoute
   '/graph': typeof GraphRoute
+  '/requirements': typeof RequirementsRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
 }
 export interface FileRoutesById {
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/contribute': typeof ContributeRoute
   '/fingerprints': typeof FingerprintsRoute
   '/graph': typeof GraphRoute
+  '/requirements': typeof RequirementsRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/contribute'
     | '/fingerprints'
     | '/graph'
+    | '/requirements'
     | '/courses/$courseId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/contribute'
     | '/fingerprints'
     | '/graph'
+    | '/requirements'
     | '/courses/$courseId'
   id:
     | '__root__'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/contribute'
     | '/fingerprints'
     | '/graph'
+    | '/requirements'
     | '/courses/$courseId'
   fileRoutesById: FileRoutesById
 }
@@ -118,6 +130,7 @@ export interface RootRouteChildren {
   ContributeRoute: typeof ContributeRoute
   FingerprintsRoute: typeof FingerprintsRoute
   GraphRoute: typeof GraphRoute
+  RequirementsRoute: typeof RequirementsRoute
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
 }
 
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GraphRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/requirements': {
+      id: '/requirements'
+      path: '/requirements'
+      fullPath: '/requirements'
+      preLoaderRoute: typeof RequirementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/courses/$courseId': {
       id: '/courses/$courseId'
       path: '/courses/$courseId'
@@ -182,6 +202,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContributeRoute: ContributeRoute,
   FingerprintsRoute: FingerprintsRoute,
   GraphRoute: GraphRoute,
+  RequirementsRoute: RequirementsRoute,
   CoursesCourseIdRoute: CoursesCourseIdRoute,
 }
 export const routeTree = rootRouteImport

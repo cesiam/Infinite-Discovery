@@ -8,7 +8,10 @@ export const getRouter = () => {
   const router = createRouter({
     routeTree,
     context: { queryClient },
-    scrollRestoration: true,
+    // Inside the planner, changing tabs never jumps the page back to the top: the plan
+    // keeps its scroll and the side panel remembers each tab's (see AppShell).
+    scrollRestoration: ({ location }) =>
+      location.pathname === "/" && !(location.search as { plan?: 1 }).plan,
     defaultPreloadStaleTime: 0,
   });
 
