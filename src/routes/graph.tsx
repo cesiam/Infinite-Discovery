@@ -76,7 +76,7 @@ const LEVEL_GAP = 60;
  * hovering a tag isolates its courses from the other tags.
  */
 function GraphPage() {
-  const { plan } = usePlan();
+  const { plan, addToCart, has } = usePlan();
   const planIds = useMemo(() => new Set(Object.values(plan.slots).flat()), [plan.slots]);
   const [mode, setMode] = useState<Mode>("prereq");
   const [sort, setSort] = useState<Sort>("clusters");
@@ -92,6 +92,7 @@ function GraphPage() {
   const [hover, setHover] = useState<{ x: number; y: number; node: Node } | null>(null);
   const [card, setCard] = useState<{ x: number; y: number; node: Node } | null>(null);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [settling, setSettling] = useState(true);
   const [full, setFull] = useState(false);
   const [resetKey, setResetKey] = useState(0);
@@ -691,10 +692,44 @@ function GraphPage() {
     };
   }, [shown, tags, color, planIds, mode, sort, prereqEdges, resetKey]);
 
-  /** A search term (or a program) becomes a tag; classes and topics go through hybrid search. */
+  /** The class a query names exactly ("6.3900", "18.06"), if it's in the graph. */
+  const exactClass = (q: string) => {
+    const id = q.trim().toUpperCase();
+    return id ? (base?.nodes.find((n) => n.id.toUpperCase() === id)?.id ?? null) : null;
+  };
+  /** A class number goes straight into the cart (and is circled on the graph): no search.
+   * Other terms (or a program) become a tag; classes and topics go through hybrid search. */
   const addTag = async (program?: ProgramSummary) => {
     const q = query.trim();
     if (!program && !q) return;
+    setNotice("");
+    const exact = program ? null : exactClass(q);
+    if (exact) {
+      const planned = has(exact);
+      const inCart = plan.cart.includes(exact);
+      if (!planned) addToCart([exact]);
+      setNotice(
+        planned
+          ? `${exact} is already in your plan.`
+          : inCart
+            ? `${exact} is already in your cart.`
+            : `Added ${exact} to your cart.`,
+      );
+      const near = (base?.edges ?? [])
+        .filter((e) => e.source === exact || e.target === exact)
+        .map((e) => (e.source === exact ? e.target : e.source));
+      const tag: Tag = {
+        key: `c:${exact}`,
+        kind: "class",
+        label: exact,
+        detail: `${exact} with its prerequisites and what it unlocks`,
+        courses: [exact, ...new Set(near)],
+      };
+      setTags((all) => (all.some((t) => t.key === tag.key) ? all : [...all, tag]));
+      setQuery("");
+      setSuggestions([]);
+      return;
+    }
     setBusy(true);
     setCard(null);
     try {
@@ -754,6 +789,7 @@ function GraphPage() {
       }),
     );
   const clear = () => {
+    setNotice("");
     setOnlyEdge(null);
     setTags([]);
     setHoverTag(null);
@@ -860,8 +896,14 @@ function GraphPage() {
                   />
                 </span>
                 <Button type="submit" size="sm" className="h-10" disabled={busy || !query.trim()}>
-                  {busy ? <Loader2 className="animate-spin" /> : <Plus />}
-                  Add tag
+                  {busy ? (
+                    <Loader2 className="animate-spin" />
+                  ) : exactClass(query) ? (
+                    <ShoppingCart />
+                  ) : (
+                    <Plus />
+                  )}
+                  {exactClass(query) ? "Add to cart" : "Add tag"}
                 </Button>
                 <Button type="button" size="sm" variant="outline" className="h-10" onClick={clear}>
                   <X />
@@ -869,6 +911,11 @@ function GraphPage() {
                 </Button>
               </span>
             </label>
+            {notice && (
+              <p className="mt-2 text-xs font-bold text-primary" role="status">
+                {notice}
+              </p>
+            )}
             {suggestions.length > 0 && (
               <div
                 className="mt-2 flex flex-wrap items-center gap-1.5 text-xs font-bold text-muted-foreground"
