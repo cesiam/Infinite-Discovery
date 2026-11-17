@@ -49,15 +49,29 @@ export const Route = createFileRoute("/")({
   component: SearchPage,
 });
 
+// The search as it was left, so going to another tab and back keeps the query, filters and
+// results (and the panel can put the scroll back where it was).
+const last: {
+  query: string;
+  filters: SearchFilters;
+  countsFor: string;
+  results: SearchResult[] | null;
+} = { query: "", filters: {}, countsFor: "", results: null };
+
 function SearchPage() {
   const placeholder = useTypingPlaceholder();
   const { q } = Route.useSearch();
-  const [query, setQuery] = useState(q ?? "");
-  useEffect(() => setQuery(q ?? ""), [q]);
-  const [filters, setFilters] = useState<SearchFilters>({});
-  const [countsFor, setCountsFor] = useState("");
-  const [results, setResults] = useState<SearchResult[] | null>(null);
+  const [query, setQuery] = useState(q ?? last.query);
+  useEffect(() => {
+    if (q !== undefined) setQuery(q);
+  }, [q]);
+  const [filters, setFilters] = useState<SearchFilters>(last.filters);
+  const [countsFor, setCountsFor] = useState(last.countsFor);
+  const [results, setResults] = useState<SearchResult[] | null>(last.results);
   const [error, setError] = useState("");
+  useEffect(() => {
+    Object.assign(last, { query, filters, countsFor, results });
+  }, [query, filters, countsFor, results]);
 
   useEffect(() => {
     let live = true;
@@ -109,7 +123,11 @@ function SearchPage() {
       <div className="find-filters">
         <label>
           <span className="label-mono">Department</span>
-          <select className="field" onChange={(e) => set("department", e.target.value)}>
+          <select
+            className="field"
+            value={filters.department ?? ""}
+            onChange={(e) => set("department", e.target.value)}
+          >
             <option value="">All</option>
             {DEPARTMENTS.map((d) => (
               <option key={d.code} value={d.code}>
@@ -133,7 +151,11 @@ function SearchPage() {
         </label>
         <label>
           <span className="label-mono">Term</span>
-          <select className="field" onChange={(e) => set("term", e.target.value)}>
+          <select
+            className="field"
+            value={filters.term ?? ""}
+            onChange={(e) => set("term", e.target.value)}
+          >
             <option value="">Any</option>
             {SEASONS.map((t) => (
               <option key={t}>{t}</option>
