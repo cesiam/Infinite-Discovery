@@ -6,7 +6,7 @@ export function Heading({
   children,
 }: {
   n: string;
-  title: string;
+  title: ReactNode;
   children?: ReactNode;
 }) {
   return (

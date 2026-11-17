@@ -10,13 +10,13 @@ export const Route = createFileRoute("/community")({
   loader: ({ context }) => context.queryClient.ensureQueryData(communityQuery),
   head: () => ({
     meta: [
-      { title: "Community — Infinite Discovery" },
+      { title: "Student Feedback — Infinite Discovery" },
       {
         name: "description",
         content:
           "Explore MIT courses through curious questions, student perspectives and new connections.",
       },
-      { property: "og:title", content: "MIT course community — Infinite Discovery" },
+      { property: "og:title", content: "Student Feedback — Infinite Discovery" },
       {
         property: "og:description",
         content: "Find your next course through trending questions and student curiosity.",
@@ -39,7 +39,7 @@ function CommunityPage() {
       <h1 className="mt-3 font-black">
         Curiosity is <span className="text-primary">contagious.</span>
       </h1>
-      <div className="mt-6 flex gap-2" role="tablist" aria-label="Community views">
+      <div className="mt-6 flex gap-2" role="tablist" aria-label="Student Feedback views">
         <Button
           role="tab"
           aria-selected={tab === "questions"}
@@ -69,9 +69,13 @@ function CommunityPage() {
           )}
           {data.questions.map((q) => (
             <article key={q.post.id} className="community-item">
-              <p className="label-mono text-primary">
+              <Link
+                to="/courses/$courseId"
+                params={{ courseId: q.courseId }}
+                className="label-mono text-primary hover:underline"
+              >
                 {q.courseId} · {q.courseTitle}
-              </p>
+              </Link>
               {/* opens the course's discussion at this question: replies, voting, replying */}
               <Link
                 to="/courses/$courseId"

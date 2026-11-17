@@ -54,6 +54,7 @@ function FingerprintsPage() {
             courseId={id}
             eyebrow={id === other ? "Looked up" : "In your plan"}
             title={`${id} ${planCourses[id]?.title ?? ""}`.trim()}
+            linkTitle
           />
         ))}
       </div>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Check, History, Pencil, Plus, RotateCcw, Sparkles, X } from "lucide-react";
 import {
   addFingerprint,
@@ -21,10 +22,13 @@ export function FingerprintSection({
   courseId,
   eyebrow = "02 · Community wiki",
   title = "Course Fingerprint",
+  linkTitle = false,
 }: {
   courseId: string;
   eyebrow?: string;
   title?: string;
+  /** Make the title a link to the class page (for lists of several classes). */
+  linkTitle?: boolean;
 }) {
   const user = useUser();
   const [items, setItems] = useState<Fingerprint[] | null>(null);
@@ -46,7 +50,18 @@ export function FingerprintSection({
 
   return (
     <section className="glass space-y-4 rounded-3xl p-6 sm:p-8">
-      <Heading n={eyebrow} title={title} />
+      <Heading
+        n={eyebrow}
+        title={
+          linkTitle ? (
+            <Link to="/courses/$courseId" params={{ courseId }} className="hover:text-primary">
+              {title}
+            </Link>
+          ) : (
+            title
+          )
+        }
+      />
       <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-muted-foreground">
         Questions you should be able to answer after this course.
         {anyAi && (

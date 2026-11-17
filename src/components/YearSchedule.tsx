@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { meetingsFor, planKey, type Meeting, type Season } from "@/lib/api";
 import { seasonYear, usePlan } from "@/lib/plan";
 
@@ -126,10 +127,12 @@ function TermWeek({
                   {blocks
                     .filter((b) => b.day === day)
                     .map((b, i) => (
-                      <div
+                      <Link
+                        to="/courses/$courseId"
+                        params={{ courseId: b.courseId }}
                         key={`${b.courseId}-${i}`}
                         title={`${b.courseId} ${b.meeting.kind} ${hourLabel(b.meeting.start)}–${hourLabel(b.meeting.end)}`}
-                        className="absolute inset-x-0.5 overflow-hidden rounded bg-primary/85 px-1 leading-tight text-primary-foreground"
+                        className="absolute inset-x-0.5 overflow-hidden rounded bg-primary/85 hover:bg-primary px-1 leading-tight text-primary-foreground"
                         style={{
                           top: (b.meeting.start - DAY_START) * HOUR,
                           height: (b.meeting.end - b.meeting.start) * HOUR - 2,
@@ -139,7 +142,7 @@ function TermWeek({
                         {(b.meeting.end - b.meeting.start) * HOUR >= 30 && (
                           <span className="block font-semibold opacity-80">{b.meeting.kind}</span>
                         )}
-                      </div>
+                      </Link>
                     ))}
                 </div>
               ))}

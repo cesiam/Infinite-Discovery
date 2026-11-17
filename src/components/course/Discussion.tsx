@@ -25,7 +25,7 @@ const MODERATION_NOTES = {
   hold: "Held for review: a moderator will publish it. Only you can see it until then.",
 };
 
-/** Student reflections and questions. Everyone shows as a per-course pseudonym. */
+/** Student feedback: reflections and questions. Everyone shows as a per-course pseudonym. */
 export function Discussion({ courseId }: { courseId: string }) {
   const user = useUser();
   const [posts, setPosts] = useState<Post[] | null>(null);
@@ -61,7 +61,7 @@ export function Discussion({ courseId }: { courseId: string }) {
 
   return (
     <section className="glass space-y-4 rounded-3xl p-6 sm:p-8">
-      <Heading n="03 · From past students" title="Student Reflections">
+      <Heading n="03 · From past students" title="Student Feedback">
         <div
           className="flex gap-1 rounded-xl bg-card/60 p-1 text-xs font-bold"
           role="group"
