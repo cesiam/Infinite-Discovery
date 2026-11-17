@@ -17,13 +17,6 @@ const FEED = [
   "14.01 made the news make sense. Which econ class comes next?",
 ];
 
-const STARTERS = [
-  { label: "Machine learning", color: "var(--primary)" },
-  { label: "Climate & energy", color: "var(--sky)" },
-  { label: "Music & theater", color: "var(--ink)" },
-  { label: "Biology", color: "var(--sky)" },
-];
-
 function Headline() {
   const ref = useRef<HTMLHeadingElement>(null);
   const [flicker, setFlicker] = useState<string | null>(null);
@@ -160,15 +153,17 @@ export function Hero() {
               <InfinityIcon aria-hidden />
             </i>
             <span>
-              Map your path
+              Infinite
               <br />
-              through MIT
+              Discovery
             </span>
           </Link>
           <nav className="hero-pills" aria-label="Main">
             <div className="hero-navbar">
-              <Link to="/fingerprints">Fingerprints</Link>
-              <Link to="/community">Student output</Link>
+              <Link to="/" search={{ plan: 1 }}>
+                Search
+              </Link>
+              <Link to="/community">Student Feedback</Link>
               <Link to="/graph">Graph</Link>
             </div>
             <SignIn className="hero-signin" />
@@ -214,19 +209,6 @@ export function Hero() {
               <ArrowRight aria-hidden />
             </button>
           </form>
-          <div className="hero-chips" aria-label="Popular starting points">
-            {STARTERS.map((s) => (
-              <button
-                key={s.label}
-                type="button"
-                className="hero-chip"
-                style={{ "--c": s.color } as React.CSSProperties}
-                onClick={() => void discover(s.label)}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
     </section>
